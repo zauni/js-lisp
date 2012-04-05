@@ -118,9 +118,19 @@ LispObject.extend = extend;
 
 
 /**
+ * Atome
+ */
+var LispAtom = LispObject.extend({
+    isLispAtom: function() {
+        return true;
+    }
+});
+
+
+/**
  * Nummern
  */
-var LispInteger = LispObject.extend({
+var LispInteger = LispAtom.extend({
     value: 0,
     isLispInteger: function() {
         return true;
@@ -163,7 +173,7 @@ var LispList = LispObject.extend({
 /**
  * nil
  */
-var LispNil = LispObject.extend({
+var LispNil = LispAtom.extend({
     value: null,
     isLispNil: function() {
         return true;
@@ -176,7 +186,7 @@ var LispNil = LispObject.extend({
 /**
  * Boolean true
  */
-var LispTrue = LispObject.extend({
+var LispTrue = LispAtom.extend({
     value: true,
     isLispTrue: function() {
         return true;
@@ -189,7 +199,7 @@ var LispTrue = LispObject.extend({
 /**
  * Boolean false
  */
-var LispFalse = LispObject.extend({
+var LispFalse = LispAtom.extend({
     value: false,
     isLispFalse: function() {
         return true;
