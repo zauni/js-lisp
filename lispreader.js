@@ -31,7 +31,8 @@ _.extend(LispReader.prototype, {
         
         var res = this.parse( $(evt.target).find("input").val() );
         
-        console.log("ergebnis: ", res.toString());
+        this.print(res);
+        //console.log("ergebnis: ", res.toString());
     },
     
     /**
@@ -57,10 +58,15 @@ _.extend(LispReader.prototype, {
                 ret = new window[ this.reservedObjects[innerMatch[0]] ]();
             }
             else {
+                if(this.knownSymbols[chars]) {
+                    ret = this.knownSymbols[chars];
+                }
+                else {
+                    ret = new LispSymbol();
+                    ret.characters = chars;
+                }
                 
-                
-                ret = new LispSymbol();
-                ret.characters = chars;
+                this.knownSymbols[chars] = ret;
             }
         }
         // List
@@ -103,7 +109,7 @@ _.extend(LispReader.prototype, {
     },
     
     print: function(lispObject) {
-        
+        $("#output").append("<li>" + lispObject.toString() + "</li>");
     }
 });
 
