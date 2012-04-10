@@ -3,19 +3,55 @@
  */
 
 
+var StringParser = function(text) {
+    if(typeof text != "string") {
+        throw "StringParser expected String but got " + (typeof text);
+    }
+    if(text.length == 0) {
+        throw "StringParser expected a non-empty String";
+    }
+    this.text = text;
+    this.currentIndex = 0;
+};
+
+_.extend(StringParser.prototype, {
+    peek: function() {
+        return this.text.charAt(this.currentIndex);
+    },
+    next: function() {
+        var character = this.text.charAt(this.currentIndex);
+        if( !this.atEnd() ) {
+            this.currentIndex++;
+        }
+        return character;
+    },
+    atEnd: function() {
+        return this.currentIndex == this.text.length;
+    },
+    skip: function(regex) {
+        var character = this.peek();
+        while(regex.test(character)) {
+            this.next();
+            character = this.peek();
+        }
+    }
+});
+
+
 /**
  * Liest die Eingabedaten und verwandelt sie in LISP Objekte
  */
 var LispReader = function(frm) {
-    _.bindAll(this, "read", "parse");
+    _.bindAll(this, "read");
     
     $(frm).submit(this.read);
 };
 
 _.extend(LispReader.prototype, {
-    symbolRegex: /^\s*([^\s\(\)\.]+)/,
-    integerRegex: /^\s*([\d]+)\b/,
-    listRegex: /^\s*\(\s*(.*)\s*\)/,
+    symbolRegex: /^[^\(\)\.]/,
+    integerRegex: /^\d/,
+    listRegex: /^\(/,
+    seperators: /\s/,
     
     reservedWords: /(nil|true|false)/,
     reservedObjects: {
@@ -24,12 +60,16 @@ _.extend(LispReader.prototype, {
         "false": "LispFalse"
     },
     
+    input: null,
+    
     knownSymbols: {},
     
     read: function(evt) {
         evt && evt.preventDefault();
         
-        var res = this.parse( $(evt.target).find("input").val() );
+        this.input = new StringParser($(evt.target).find("input").val());
+        
+        var res = this.readObject();
         
         this.print(res);
         //console.log("ergebnis: ", res.toString());
@@ -37,75 +77,100 @@ _.extend(LispReader.prototype, {
     
     /**
      * Parsed die Eingabedaten
-     * @param {String} str Eingabewert
      * @return {mixed} LISP Objekt
      */
-    parse: function(str) {
-        var ret,
-            match,
-            innerMatch,
-            listValues = [];
+    readObject: function() {
+        var ret;
+            
+        this.input.skip(this.seperators);
         
         // Integer
-        if(match = str.match(this.integerRegex)) {
-            ret = new LispInteger();
-            ret.value = parseInt(match[1], 10);
+        if(this.integerRegex.test(this.input.peek())) {
+            ret = this.readInteger();
         }
         // Symbol
-        else if(match = str.match(this.symbolRegex)) {
-            var chars = "" + $.trim(match[1]);
-            if(innerMatch = chars.match(this.reservedWords)) {
-                ret = new window[ this.reservedObjects[innerMatch[0]] ]();
-            }
-            else {
-                if(this.knownSymbols[chars]) {
-                    ret = this.knownSymbols[chars];
-                }
-                else {
-                    ret = new LispSymbol();
-                    ret.characters = chars;
-                }
-                
-                this.knownSymbols[chars] = ret;
-            }
+        else if(this.symbolRegex.test(this.input.peek())) {
+            ret = this.readSymbol();
         }
         // List
-        else if(match = str.match(this.listRegex)) {
-            ret = new LispList();
-             
-            if(
-               (innerMatch = match[1].match(this.integerRegex)) ||
-               (innerMatch = match[1].match(this.symbolRegex))
-            ) {
-                listValues[0] = innerMatch[1]; // match gibt ein Array zurück
-                listValues[1] = $.trim(match[1].replace(listValues[0], ""));
-            }
-            else if(innerMatch = match[1].match(this.listRegex)) {
-                listValues[0] = innerMatch[0];
-                listValues[1] = $.trim(match[1].replace(listValues[0], ""));
-            }
-            else {
-                ret = new LispNil();
-                return ret;
-            }
-             
-            console.info(listValues, match);
-             
-            ret.first = this.parse(listValues[0]);
-            if(listValues.length > 1 && listValues[1].length) {
-                ret.rest = this.parse("(" + listValues[1] + ")");
-                /*ret.rest = new LispList();
-                ret.rest.first = this.parse(listValues[1]);
-                ret.rest.rest = new LispNil();*/
-            }
-            else {
-                ret.rest = new LispNil();
-            }
+        else if(this.listRegex.test(this.input.peek())) {
+            ret = this.readList();
         }
         else {
             ret = new LispNil();
         }
         return ret;
+    },
+    
+    readInteger: function() {
+        var integer = new LispInteger(),
+            character = "";
+            
+        while(!this.input.atEnd() && this.integerRegex.test(this.input.peek())) {
+            character += this.input.next();
+        }
+        integer.value = parseInt(character, 10);
+        
+        return integer;
+    },
+    readSymbol: function() {
+        var symbol = new LispSymbol(),
+            character = "",
+            reservedWord;
+            
+        while(!this.input.atEnd() && this.symbolRegex.test(this.input.peek())) {
+            character += this.input.next();
+        }
+        
+        if(reservedWord = character.match(this.reservedWords)) {
+            return new window[ this.reservedObjects[reservedWord[0]] ]();
+        }
+        
+        symbol.characters = character;
+        return symbol;
+    },
+    readList: function() {
+        var element,
+            list;
+        
+        this.input.next();
+        
+        this.input.skip(this.seperators);
+        
+        if(this.input.peek() == ")") {
+            return new LispNil();
+        }
+        
+        element = this.readObject();
+        
+        this.input.skip(this.seperators);
+        
+        list = new LispList();
+        list.first = element;
+        list.rest = this.readListRest();
+        
+        return list;
+    },
+    readListRest: function() {
+        var element,
+            list;
+        
+        this.input.skip(this.seperators);
+        
+        if(this.input.peek() == ")") {
+            this.input.next();
+            return new LispNil();
+        }
+        
+        element = this.readObject();
+        
+        this.input.skip(this.seperators);
+        
+        list = new LispList();
+        list.first = element;
+        list.rest = this.readListRest();
+        
+        return list;
     },
     
     print: function(lispObject) {
@@ -114,11 +179,62 @@ _.extend(LispReader.prototype, {
 });
 
 
+LispEvaluator = {
+    eval: function(lispObj) {
+        if(lispObj.isLispAtom) {
+            return lispObj.toString();
+        }
+        else if(lispObj.isLispSymbol) {
+            
+            // env@expr
+            //
+        }
+    },
+    defineBuiltInFunctionIn: function(env) {
+        /*evn.addBindingFor(LispSymbol, value: LispBuiltInFunction(action: function(evaluator, env, args) {
+            
+        }))*/
+        //oder LispBuiltInFunction Subclass schreiben
+    }
+};
+
+
+/**
+ * Environment für LISP
+ */
+var LispEnvironment = function() {
+    this.localBindings = [];
+};
+
+_.extend(LispEnvironment.prototype, {
+    getBindingFor: function(symbol) {
+        return _(this.localBindings).find(function(binding) {
+            return binding.key.equals(symbol);
+        });
+    },
+    addBindingfor: function(symbol, listObject) {
+        this.localBindings.push({
+            key: symbol,
+            value: listObject
+        });
+    }
+});
+
 
 /**
  * Elternklasse für alle LISP Objekte
  */
 var LispObject = function() {};
+
+_.extend(LispObject.prototype, {
+    isLispAtom: false,
+    isLispInteger: false,
+    isLispSymbol: false,
+    isLispList: false,
+    isLispNil: false,
+    isLispTrue: false,
+    isLispFalse: false
+});
 
 LispObject.extend = extend;
 
@@ -127,9 +243,7 @@ LispObject.extend = extend;
  * Atome
  */
 var LispAtom = LispObject.extend({
-    isLispAtom: function() {
-        return true;
-    }
+    isLispAtom: true
 });
 
 
@@ -138,9 +252,7 @@ var LispAtom = LispObject.extend({
  */
 var LispInteger = LispAtom.extend({
     value: 0,
-    isLispInteger: function() {
-        return true;
-    },
+    isLispInteger: true,
     toString: function() {
         return this.value;
     }
@@ -151,8 +263,9 @@ var LispInteger = LispAtom.extend({
  */
 var LispSymbol = LispObject.extend({
     characters: "",
-    isLispSymbol: function() {
-        return true;
+    isLispSymbol: true,
+    equals: function(otherSymbol) {
+        return this.characters == otherSymbol.characters;
     },
     toString: function() {
         return this.characters;
@@ -165,8 +278,9 @@ var LispSymbol = LispObject.extend({
 var LispList = LispObject.extend({
     first: null,
     rest: null,
-    isLispList: function() {
-        return true;
+    isLispList: true,
+    second: function() {
+        return this.rest.first;
     },
     toString: function() {
         return "(" +
@@ -181,9 +295,7 @@ var LispList = LispObject.extend({
  */
 var LispNil = LispAtom.extend({
     value: null,
-    isLispNil: function() {
-        return true;
-    },
+    isLispNil: true,
     toString: function() {
         return "nil";
     }
@@ -194,9 +306,7 @@ var LispNil = LispAtom.extend({
  */
 var LispTrue = LispAtom.extend({
     value: true,
-    isLispTrue: function() {
-        return true;
-    },
+    isLispTrue: true,
     toString: function() {
         return "true";
     }
@@ -207,9 +317,7 @@ var LispTrue = LispAtom.extend({
  */
 var LispFalse = LispAtom.extend({
     value: false,
-    isLispFalse: function() {
-        return true;
-    },
+    isLispFalse: true,
     toString: function() {
         return "false";
     }
