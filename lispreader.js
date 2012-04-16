@@ -69,6 +69,10 @@ _.extend(LispReader.prototype, {
         return ret;
     },
     
+    /**
+     * Liest Integerzahlen
+     * @return {LispInteger}
+     */
     readInteger: function() {
         var integer = new LispInteger(),
             character = "";
@@ -80,6 +84,12 @@ _.extend(LispReader.prototype, {
         
         return integer;
     },
+    
+    /**
+     * Liest Symbole
+     * Falls reservierte Worte wie true/false/nil vorkommen, wird die entsprechende Instanz zurückgegeben
+     * @return {Mixed}
+     */
     readSymbol: function() {
         var symbol = new LispSymbol(),
             character = "",
@@ -96,6 +106,11 @@ _.extend(LispReader.prototype, {
         symbol.characters = character;
         return symbol;
     },
+    
+    /**
+     * Liest Listen
+     * @return {LispList}
+     */
     readList: function() {
         var element,
             list;
@@ -118,6 +133,11 @@ _.extend(LispReader.prototype, {
         
         return list;
     },
+    
+    /**
+     * Liest den Rest einer Liste
+     * @return {LispList}
+     */
     readListRest: function() {
         var element,
             list;
@@ -140,6 +160,10 @@ _.extend(LispReader.prototype, {
         return list;
     },
     
+    /**
+     * Gibt das Ergebnis in einer Liste aus
+     * @param {LispObject} lispObject
+     */
     print: function(lispObject) {
         $("#output").append("<li>" + lispObject.toString() + "</li>");
     }
