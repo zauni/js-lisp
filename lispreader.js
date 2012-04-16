@@ -3,52 +3,19 @@
  */
 
 
-var StringParser = function(text) {
-    if(typeof text != "string") {
-        throw "StringParser expected String but got " + (typeof text);
-    }
-    if(text.length == 0) {
-        throw "StringParser expected a non-empty String";
-    }
-    this.text = text;
-    this.currentIndex = 0;
-};
-
-_.extend(StringParser.prototype, {
-    peek: function() {
-        return this.text.charAt(this.currentIndex);
-    },
-    next: function() {
-        var character = this.text.charAt(this.currentIndex);
-        if( !this.atEnd() ) {
-            this.currentIndex++;
-        }
-        return character;
-    },
-    atEnd: function() {
-        return this.currentIndex == this.text.length;
-    },
-    skip: function(regex) {
-        var character = this.peek();
-        while(regex.test(character)) {
-            this.next();
-            character = this.peek();
-        }
-    }
-});
-
-
 /**
  * Liest die Eingabedaten und verwandelt sie in LISP Objekte
  */
 var LispReader = function(frm) {
     _.bindAll(this, "read");
     
-    $(frm).submit(this.read);
+    $(frm).on("submit", this.read);
+    
+    LispEvaluator.defineBuiltInFunctions();
 };
 
 _.extend(LispReader.prototype, {
-    symbolRegex: /^[^\(\)\.]/,
+    symbolRegex: /^[^\(\)\.\s]/,
     integerRegex: /^\d/,
     listRegex: /^\(/,
     seperators: /\s/,
@@ -71,7 +38,7 @@ _.extend(LispReader.prototype, {
         
         var res = this.readObject();
         
-        this.print(res);
+        this.print(LispEvaluator.eval(res));
         //console.log("ergebnis: ", res.toString());
     },
     
@@ -179,26 +146,6 @@ _.extend(LispReader.prototype, {
 });
 
 
-LispEvaluator = {
-    eval: function(lispObj) {
-        if(lispObj.isLispAtom) {
-            return lispObj.toString();
-        }
-        else if(lispObj.isLispSymbol) {
-            
-            // env@expr
-            //
-        }
-    },
-    defineBuiltInFunctionIn: function(env) {
-        /*evn.addBindingFor(LispSymbol, value: LispBuiltInFunction(action: function(evaluator, env, args) {
-            
-        }))*/
-        //oder LispBuiltInFunction Subclass schreiben
-    }
-};
-
-
 /**
  * Environment für LISP
  */
@@ -207,18 +154,74 @@ var LispEnvironment = function() {
 };
 
 _.extend(LispEnvironment.prototype, {
+    /**
+     * Gibt das LispObject an der Stelle des Symbols zurück
+     * @param {LispSymbol} symbol "Key" in der Environment HashTable
+     * @return {Mixed}
+     */
     getBindingFor: function(symbol) {
-        return _(this.localBindings).find(function(binding) {
+        var ret = _(this.localBindings).find(function(binding) {
             return binding.key.equals(symbol);
-        });
+        }).value;
+        return ret;
     },
-    addBindingfor: function(symbol, listObject) {
+    
+    /**
+     * Fügt ein Binding ins Environment hinzu
+     * @param {LispSymbol} symbol "Key" in der Environment HashTable
+     * @param {LispObject} lispObject "Value" in der Environment HashTable
+     */
+    addBindingFor: function(symbol, lispObject) {
         this.localBindings.push({
             key: symbol,
-            value: listObject
+            value: lispObject
         });
     }
 });
+
+
+/**
+ * LispEvaluator um Lisp Objekte zu evaluieren
+ */
+LispEvaluator = {
+    env: new LispEnvironment(),
+    
+    /**
+     * Evaluiert ein gegebenes LispObject
+     * @param {LispObject} lispObj Das zu evaluierende Object
+     * @return {Mixed}
+     */
+    eval: function(lispObj) {
+        if(lispObj.isLispAtom) {
+            return lispObj.toString();
+        }
+        else if(lispObj.isLispSymbol) {
+            // env@expr
+            return this.env.getBindingFor(lispObj);
+        }
+        else if(lispObj.isLispList) {
+            var func = lispObj.first,
+                f = this.eval(func),
+                args = lispObj.rest;
+                
+            if(f.isLispBuiltInFunction || f.isLispUserDefinedFunction) {
+                return f.action(args, this.env);
+            }
+            else {
+                return args;
+            }
+        }
+    },
+    
+    /**
+     * Definiert alle im System vorhandenen "Built-In" Funktionen
+     */
+    defineBuiltInFunctions: function() {
+        var plusSymbol = new LispSymbol();
+        plusSymbol.characters = "+";
+        this.env.addBindingFor(plusSymbol, new LispBuiltInPlusFunction());
+    }
+};
 
 
 /**
@@ -233,10 +236,49 @@ _.extend(LispObject.prototype, {
     isLispList: false,
     isLispNil: false,
     isLispTrue: false,
-    isLispFalse: false
+    isLispFalse: false,
+    isLispBuiltInFunction: false,
+    isUserDefinedFunction: false
 });
 
 LispObject.extend = extend;
+
+
+/**
+ * Built-In Funktionen
+ */
+var LispBuiltInFunction = LispObject.extend({
+    isLispBuiltInFunction: true,
+    action: function() {}
+});
+
+/**
+ * +
+ */
+var LispBuiltInPlusFunction = LispBuiltInFunction.extend({
+    /**
+     * Aktion bei einem "+" LispSymbol
+     * @param {LispObject} args Argumente der Aktion
+     * @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+     */
+    action: function(args, env) {
+        var arg = LispEvaluator.eval(args.first),
+            erg = new LispInteger();
+        
+        if(arg && !args.rest.isLispNil) {
+            erg.value = arg + (this.action(args.rest, env)).value;
+            return erg;
+        }
+        else if(arg) {
+            erg.value = arg;
+            return erg;
+        }
+        else {
+            erg.value = 0;
+            return erg;
+        }
+    }
+});
 
 
 /**
