@@ -34,11 +34,13 @@ _.extend(LispReader.prototype, {
     read: function(evt) {
         evt && evt.preventDefault();
         
-        this.input = new StringParser($(evt.target).find("input").val());
+        var inputText = $(evt.target).find("input").val();
+        
+        this.input = new StringParser(inputText);
         
         var res = this.readObject();
         
-        this.print(LispEvaluator.eval(res));
+        this.print(LispEvaluator.eval(res), inputText);
         //console.log("ergebnis: ", res.toString());
     },
     
@@ -163,9 +165,13 @@ _.extend(LispReader.prototype, {
     /**
      * Gibt das Ergebnis in einer Liste aus
      * @param {LispObject} lispObject
+     * @param {String} inputText
      */
-    print: function(lispObject) {
-        $("#output").append("<li>" + lispObject.toString() + "</li>");
+    print: function(lispObject, inputText) {
+        $("#output").append(
+            "<li> &gt;&gt; " + inputText + "</li>" +
+            "<li>" + lispObject.toString() + "</li>"
+        );
     }
 });
 
@@ -250,168 +256,3 @@ LispEvaluator = {
         this.env.addBindingFor(defineSymbol, new LispBuiltInDefineFunction());
     }
 };
-
-
-/**
- * Elternklasse für alle LISP Objekte
- */
-var LispObject = function() {};
-
-_.extend(LispObject.prototype, {
-    isLispAtom: false,
-    isLispInteger: false,
-    isLispSymbol: false,
-    isLispList: false,
-    isLispNil: false,
-    isLispTrue: false,
-    isLispFalse: false,
-    isLispBuiltInFunction: false,
-    isUserDefinedFunction: false
-});
-
-LispObject.extend = extend;
-
-
-/**
- * Built-In Funktionen
- */
-var LispBuiltInFunction = LispObject.extend({
-    isLispBuiltInFunction: true,
-    action: function() {},
-    toString: function() {
-        return "((Builtin Function))";
-    }
-});
-
-/**
- * +
- */
-var LispBuiltInPlusFunction = LispBuiltInFunction.extend({
-    /**
-     * Aktion bei einem "+" LispSymbol
-     * @param {LispObject} args Argumente der Aktion
-     * @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
-     */
-    action: function(args, env) {
-        var arg = LispEvaluator.eval(args.first),
-            erg = new LispInteger();
-        
-        if(arg && !args.rest.isLispNil) {
-            erg.value = arg + (this.action(args.rest, env)).value;
-            return erg;
-        }
-        else if(arg) {
-            erg.value = arg;
-            return erg;
-        }
-        else {
-            erg.value = 0;
-            return erg;
-        }
-    }
-});
-
-/**
- * define
- */
-var LispBuiltInDefineFunction = LispBuiltInFunction.extend({
-    /**
-     * Aktion bei einem "define" LispSymbol
-     * @param {LispObject} args Argumente der Aktion
-     * @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
-     */
-    action: function(args, env) {
-        var varName = args.first,
-            value = LispEvaluator.eval(args.rest.first);
-            
-        if(varName && varName.isLispSymbol && value) {
-            env.addBindingFor(varName, value);
-            return value;
-        }
-    }
-});
-
-
-/**
- * Atome
- */
-var LispAtom = LispObject.extend({
-    isLispAtom: true
-});
-
-
-/**
- * Nummern
- */
-var LispInteger = LispAtom.extend({
-    value: 0,
-    isLispInteger: true,
-    toString: function() {
-        return this.value;
-    }
-});
-
-/**
- * Symbole
- */
-var LispSymbol = LispObject.extend({
-    characters: "",
-    isLispSymbol: true,
-    equals: function(otherSymbol) {
-        return this.characters == otherSymbol.characters;
-    },
-    toString: function() {
-        return this.characters;
-    }
-});
-
-/**
- * Listen
- */
-var LispList = LispObject.extend({
-    first: null,
-    rest: null,
-    isLispList: true,
-    second: function() {
-        return this.rest.first;
-    },
-    toString: function() {
-        return "(" +
-               this.first.toString() + " " +
-               this.rest.toString() +
-               ")";
-    }
-});
-
-/**
- * nil
- */
-var LispNil = LispAtom.extend({
-    value: null,
-    isLispNil: true,
-    toString: function() {
-        return "nil";
-    }
-});
-
-/**
- * Boolean true
- */
-var LispTrue = LispAtom.extend({
-    value: true,
-    isLispTrue: true,
-    toString: function() {
-        return "true";
-    }
-});
-
-/**
- * Boolean false
- */
-var LispFalse = LispAtom.extend({
-    value: false,
-    isLispFalse: true,
-    toString: function() {
-        return "false";
-    }
-});
