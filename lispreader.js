@@ -186,8 +186,8 @@ _.extend(LispEnvironment.prototype, {
     getBindingFor: function(symbol) {
         var ret = _(this.localBindings).find(function(binding) {
             return binding.key.equals(symbol);
-        }).value;
-        return ret;
+        });
+        return ret && ret.value ? ret.value : new LispNil();
     },
     
     /**
@@ -244,6 +244,10 @@ LispEvaluator = {
         var plusSymbol = new LispSymbol();
         plusSymbol.characters = "+";
         this.env.addBindingFor(plusSymbol, new LispBuiltInPlusFunction());
+        
+        var defineSymbol = new LispSymbol();
+        defineSymbol.characters = "define";
+        this.env.addBindingFor(defineSymbol, new LispBuiltInDefineFunction());
     }
 };
 
@@ -273,7 +277,10 @@ LispObject.extend = extend;
  */
 var LispBuiltInFunction = LispObject.extend({
     isLispBuiltInFunction: true,
-    action: function() {}
+    action: function() {},
+    toString: function() {
+        return "((Builtin Function))";
+    }
 });
 
 /**
@@ -300,6 +307,26 @@ var LispBuiltInPlusFunction = LispBuiltInFunction.extend({
         else {
             erg.value = 0;
             return erg;
+        }
+    }
+});
+
+/**
+ * define
+ */
+var LispBuiltInDefineFunction = LispBuiltInFunction.extend({
+    /**
+     * Aktion bei einem "define" LispSymbol
+     * @param {LispObject} args Argumente der Aktion
+     * @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+     */
+    action: function(args, env) {
+        var varName = args.first,
+            value = LispEvaluator.eval(args.rest.first);
+            
+        if(varName && varName.isLispSymbol && value) {
+            env.addBindingFor(varName, value);
+            return value;
         }
     }
 });
