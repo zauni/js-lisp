@@ -11,7 +11,11 @@ var LispReader = function(frm) {
     
     $(frm).on("submit", this.read);
     
+    this.inputField = $("#inputstream");
+    
     LispEvaluator.defineBuiltInFunctions();
+    
+    this.activateAutocomplete();
 };
 
 _.extend(LispReader.prototype, {
@@ -34,14 +38,48 @@ _.extend(LispReader.prototype, {
     read: function(evt) {
         evt && evt.preventDefault();
         
-        var inputText = $(evt.target).find("input").val();
+        var inputText = this.inputField.val();
         
         this.input = new StringParser(inputText);
         
-        var res = this.readObject();
+        this.print(LispEvaluator.eval(this.readObject()), inputText);
         
-        this.print(LispEvaluator.eval(res), inputText);
-        //console.log("ergebnis: ", res.toString());
+        this.inputField.val("");
+        
+        this.updateAutocompleteData();
+    },
+    
+    activateAutocomplete: function() {
+        var self = this;
+        
+        $("#inputstream").autocomplete({
+            autoFill: true,
+            delay: 0,
+            minChars: 1,
+            data: this.getBindingsData(),
+            onFinish: function() {
+                var field = self.inputField,
+                    value = field.val(),
+                    autoCompleter = field.data("autocompleter");
+
+                field.val(value + ")");
+                autoCompleter.setCaret(value.length);
+            }
+        });
+    },
+    
+    getBindingsData: function() {
+        var data = [];
+        _(LispEvaluator.env.localBindings).each(function(binding, index) {
+            data[index] = ["(" + binding.key.characters, index+1];
+        });
+        return data;
+    },
+    
+    updateAutocompleteData: function() {
+        var autoCompleter = this.inputField.data("autocompleter");
+        
+        autoCompleter.options.data = this.getBindingsData();
     },
     
     /**
