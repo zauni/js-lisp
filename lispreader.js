@@ -69,9 +69,13 @@ _.extend(LispReader.prototype, {
     },
     
     getBindingsData: function() {
-        var data = [];
-        _(LispEvaluator.env.localBindings).each(function(binding, index) {
-            data[index] = ["(" + binding.key.characters, index+1];
+        var data = [],
+            currentIndex = 0;
+        _(LispEvaluator.env.localBindings).each(function(binding) {
+            if(binding.value.isLispBuiltInFunction || binding.value.isUserDefinedFunction) {
+                data[currentIndex] = ["(" + binding.key.characters, currentIndex+1];
+                currentIndex++;
+            }
         });
         return data;
     },
