@@ -49,13 +49,29 @@ var LispBuiltInDefineFunction = LispBuiltInFunction.extend({
      * @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
      */
     action: function(args, env) {
-        var varName = args.first,
-            value = LispEvaluator.eval(args.rest.first, env);
+        var varNameOrFunc = args.first;
             
-        if(varName && varName.isLispSymbol && value) {
-            env.addBindingFor(varName, value);
+        if(varNameOrFunc.isLispSymbol) {
+            var value = LispEvaluator.eval(args.rest.first, env);
+            env.addBindingFor(varNameOrFunc, value);
             return value;
         }
+        // Syntactic Sugar für einfachere lambdas
+        else if(varNameOrFunc.isLispList) {
+            var funcName = varNameOrFunc.first,
+                unevaluatedArgs = varNameOrFunc.rest,
+                body = args.second(),
+                func = new LispUserDefinedFunction();
+        
+            func.args = unevaluatedArgs;
+            func.body = body;
+            func.env = env;
+            
+            env.addBindingFor(funcName, func);
+
+            return func;
+        }
+        return new LispNil();
     }
 });
 
