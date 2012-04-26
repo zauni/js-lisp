@@ -3,7 +3,7 @@
 /**
  * Built-In Funktionen
  */
-var LispBuiltInFunction = LispObject.extend({
+var LispBuiltInFunction = LispAtom.extend({
     isLispBuiltInFunction: true,
     action: function() {},
     toString: function() {
@@ -21,7 +21,7 @@ var LispBuiltInPlusFunction = LispBuiltInFunction.extend({
      * @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
      */
     action: function(args, env) {
-        var arg = LispEvaluator.eval(args.first),
+        var arg = LispEvaluator.eval(args.first, env),
             erg = new LispInteger();
         
         if(arg && !args.rest.isLispNil) {
@@ -50,11 +50,33 @@ var LispBuiltInDefineFunction = LispBuiltInFunction.extend({
      */
     action: function(args, env) {
         var varName = args.first,
-            value = LispEvaluator.eval(args.rest.first);
+            value = LispEvaluator.eval(args.rest.first, env);
             
         if(varName && varName.isLispSymbol && value) {
             env.addBindingFor(varName, value);
             return value;
         }
+    }
+});
+
+/**
+ * define
+ */
+var LispBuiltInLambdaFunction = LispBuiltInFunction.extend({
+    /**
+     * Aktion bei einem "lambda" LispSymbol
+     * @param {LispObject} args Argumente der Aktion
+     * @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+     */
+    action: function(args, env) {
+        var unevaluatedArgs = args.first,
+            body = args.rest.first,
+            func = new LispUserDefinedFunction();
+        
+        func.args = unevaluatedArgs;
+        func.body = body;
+        func.env = env;
+        
+        return func;
     }
 });

@@ -41,7 +41,7 @@ var LispInteger = LispAtom.extend({
 /**
  * Symbole
  */
-var LispSymbol = LispObject.extend({
+var LispSymbol = LispAtom.extend({
     characters: "",
     isLispSymbol: true,
     equals: function(otherSymbol) {
@@ -60,7 +60,9 @@ var LispList = LispObject.extend({
     rest: null,
     isLispList: true,
     second: function() {
-        return this.rest.first;
+        return this.rest && this.rest.isLispList
+               ? this.rest.first
+               : new LispNil();
     },
     toString: function() {
         return "(" +
@@ -100,5 +102,18 @@ var LispFalse = LispAtom.extend({
     isLispFalse: true,
     toString: function() {
         return "false";
+    }
+});
+
+/**
+ * User Defined Function (lambda)
+ */
+var LispUserDefinedFunction = LispAtom.extend({
+    isUserDefinedFunction: true,
+    args: null,
+    body: null,
+    env: null,
+    toString: function() {
+        return "((User Defined Function))";
     }
 });

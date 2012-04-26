@@ -221,8 +221,9 @@ _.extend(LispReader.prototype, {
 /**
  * Environment für LISP
  */
-var LispEnvironment = function() {
+var LispEnvironment = function(parentEnv) {
     this.localBindings = [];
+    this.parentEnv = parentEnv || null;
 };
 
 _.extend(LispEnvironment.prototype, {
@@ -235,6 +236,9 @@ _.extend(LispEnvironment.prototype, {
         var ret = _(this.localBindings).find(function(binding) {
             return binding.key.equals(symbol);
         });
+        if(!ret && this.parentEnv) {
+            return this.parentEnv.getBindingFor(symbol);
+        }
         return ret && ret.value ? ret.value : new LispNil();
     },
     
@@ -261,28 +265,52 @@ LispEvaluator = {
     /**
      * Evaluiert ein gegebenes LispObject
      * @param {LispObject} lispObj Das zu evaluierende Object
+     * @param {LispEnvironment} env Das Environment, in dem evaluiert wird
      * @return {Mixed}
      */
-    eval: function(lispObj) {
+    eval: function(lispObj, env) {
+        env = env || this.env;
+        
         if(lispObj.isLispAtom) {
-            return lispObj.toString();
-        }
-        else if(lispObj.isLispSymbol) {
-            // env@expr
-            return this.env.getBindingFor(lispObj);
-        }
-        else if(lispObj.isLispList) {
-            var func = lispObj.first,
-                f = this.eval(func),
-                args = lispObj.rest;
-                
-            if(f.isLispBuiltInFunction || f.isLispUserDefinedFunction) {
-                return f.action(args, this.env);
+            if(lispObj.isLispSymbol) {
+                return env.getBindingFor(lispObj);
             }
-            else {
-                return args;
-            }
+            return lispObj;
         }
+        
+        var unevaluatedFunc = lispObj.first,
+            evaluatedFunc = this.eval(unevaluatedFunc, env),
+            unevaluatedArgs = lispObj.rest;
+
+        if(evaluatedFunc.isLispBuiltInFunction) {
+            return evaluatedFunc.action(unevaluatedArgs, env);
+        }
+        else if(evaluatedFunc.isUserDefinedFunction) {
+            return this.evalUserDefinedFunction(evaluatedFunc, unevaluatedArgs, env);
+        }
+        
+        return new LispNil();
+    },
+    
+    evalUserDefinedFunction: function(func, unevaluatedArgs, env) {
+        var formalArgs = func.args,
+            newEnv = new LispEnvironment(func.env),
+            nameOfFormalArg, unevaluatedArg, evaluatedArg;
+        
+        unevaluatedArgs = unevaluatedArgs || new LispList();
+        
+        while(formalArgs && !formalArgs.isLispNil) {
+            nameOfFormalArg = formalArgs.first;
+            unevaluatedArg = unevaluatedArgs.first;
+
+            evaluatedArg = LispEvaluator.eval(unevaluatedArg, env);
+            newEnv.addBindingFor(nameOfFormalArg, evaluatedArg);
+
+            formalArgs = formalArgs.rest;
+            unevaluatedArgs = unevaluatedArgs.rest;
+        }
+        
+        return LispEvaluator.eval(func.body, newEnv);
     },
     
     /**
@@ -296,5 +324,9 @@ LispEvaluator = {
         var defineSymbol = new LispSymbol();
         defineSymbol.characters = "define";
         this.env.addBindingFor(defineSymbol, new LispBuiltInDefineFunction());
+        
+        var lambdaSymbol = new LispSymbol();
+        lambdaSymbol.characters = "lambda";
+        this.env.addBindingFor(lambdaSymbol, new LispBuiltInLambdaFunction());
     }
 };
