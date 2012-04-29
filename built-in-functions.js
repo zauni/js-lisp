@@ -27,12 +27,88 @@ var LispBuiltInPlusFunction = LispBuiltInFunction.extend({
         if(arg && !args.rest.isLispNil) {
             erg.value = arg + (this.action(args.rest, env)).value;
             return erg;
-        }
-        else if(arg) {
+        } else if(arg) {
             erg.value = arg;
             return erg;
+        } else {
+            erg.value = 0;
+            return erg;
         }
-        else {
+    }
+});
+
+/**
+ * -
+ */
+var LispBuiltInMinusFunction = LispBuiltInFunction.extend({
+    /**
+     * Aktion bei einem "-" LispSymbol
+     * @param {LispObject} args Argumente der Aktion
+     * @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+     */
+    action: function(args, env) {
+        var arg = LispEvaluator.eval(args.first, env),
+            erg = new LispInteger();
+        
+        if(arg && !args.rest.isLispNil) {
+            erg.value = arg - (this.action(args.rest, env)).value;
+            return erg;
+        } else if(arg) {
+            erg.value = arg;
+            return erg;
+        } else {
+            erg.value = 0;
+            return erg;
+        }
+    }
+});
+
+/**
+ * *
+ */
+var LispBuiltInMultiplyFunction = LispBuiltInFunction.extend({
+    /**
+     * Aktion bei einem "*" LispSymbol
+     * @param {LispObject} args Argumente der Aktion
+     * @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+     */
+    action: function(args, env) {
+        var arg = LispEvaluator.eval(args.first, env),
+            erg = new LispInteger();
+        
+        if(arg && !args.rest.isLispNil) {
+            erg.value = arg * (this.action(args.rest, env)).value;
+            return erg;
+        } else if(arg) {
+            erg.value = arg;
+            return erg;
+        } else {
+            erg.value = 0;
+            return erg;
+        }
+    }
+});
+
+/**
+ * /
+ */
+var LispBuiltInDivideFunction = LispBuiltInFunction.extend({
+    /**
+     * Aktion bei einem "/" LispSymbol
+     * @param {LispObject} args Argumente der Aktion
+     * @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+     */
+    action: function(args, env) {
+        var arg = LispEvaluator.eval(args.first, env),
+            erg = new LispInteger();
+        
+        if(arg && !args.rest.isLispNil) {
+            erg.value = arg / (this.action(args.rest, env)).value;
+            return erg;
+        } else if(arg) {
+            erg.value = arg;
+            return erg;
+        } else {
             erg.value = 0;
             return erg;
         }

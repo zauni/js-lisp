@@ -320,6 +320,9 @@ LispEvaluator = {
         var env = this.env;
         _.each({
             "+": "Plus",
+            "-": "Minus",
+            "*": "Multiply",
+            "/": "Divide",
             "define": "Define",
             "lambda": "Lambda",
             "if": "If"
