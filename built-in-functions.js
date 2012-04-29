@@ -76,7 +76,7 @@ var LispBuiltInDefineFunction = LispBuiltInFunction.extend({
 });
 
 /**
- * define
+ * lambda
  */
 var LispBuiltInLambdaFunction = LispBuiltInFunction.extend({
     /**
