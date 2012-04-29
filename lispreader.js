@@ -317,16 +317,18 @@ LispEvaluator = {
      * Definiert alle im System vorhandenen "Built-In" Funktionen
      */
     defineBuiltInFunctions: function() {
-        var plusSymbol = new LispSymbol();
-        plusSymbol.characters = "+";
-        this.env.addBindingFor(plusSymbol, new LispBuiltInPlusFunction());
-        
-        var defineSymbol = new LispSymbol();
-        defineSymbol.characters = "define";
-        this.env.addBindingFor(defineSymbol, new LispBuiltInDefineFunction());
-        
-        var lambdaSymbol = new LispSymbol();
-        lambdaSymbol.characters = "lambda";
-        this.env.addBindingFor(lambdaSymbol, new LispBuiltInLambdaFunction());
+        var env = this.env;
+        _.each({
+            "+": "Plus",
+            "define": "Define",
+            "lambda": "Lambda",
+            "if": "If"
+        }, function(className, symbol) {
+            var key = new LispSymbol(),
+                klass = "LispBuiltIn" + className + "Function";
+                
+            key.characters = symbol;
+            env.addBindingFor(key, new window[klass]());
+        });
     }
 };

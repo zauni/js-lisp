@@ -96,3 +96,25 @@ var LispBuiltInLambdaFunction = LispBuiltInFunction.extend({
         return func;
     }
 });
+
+
+/**
+ * if
+ */
+var LispBuiltInIfFunction = LispBuiltInFunction.extend({
+    /**
+     * Aktion bei einem "if" LispSymbol
+     * @param {LispObject} args Argumente der Aktion
+     * @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+     */
+    action: function(args, env) {
+        var unevaluatedCond = args.first,
+            unevaluatedIfBody = args.second(),
+            unevaluatedElseBody = args.third(),
+            cond = LispEvaluator.eval(unevaluatedCond, env);
+        
+        return cond && cond.isLispTrue
+               ? LispEvaluator.eval(unevaluatedIfBody, env)
+               : LispEvaluator.eval(unevaluatedElseBody, env);
+    }
+});

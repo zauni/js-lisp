@@ -64,6 +64,11 @@ var LispList = LispObject.extend({
                ? this.rest.first
                : new LispNil();
     },
+    third: function() {
+        return this.rest && this.rest.rest && this.rest.rest.isLispList
+               ? this.rest.rest.first
+               : new LispNil();
+    },
     toString: function() {
         return "(" +
                this.first.toString() + " " +
