@@ -194,3 +194,57 @@ var LispBuiltInIfFunction = LispBuiltInFunction.extend({
                : LispEvaluator.eval(unevaluatedElseBody, env);
     }
 });
+
+
+/**
+ * cons
+ */
+var LispBuiltInConsFunction = LispBuiltInFunction.extend({
+    /**
+     * Aktion bei einem "cons" LispSymbol
+     * @param {LispObject} args Argumente der Aktion
+     * @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+     */
+    action: function(args, env) {
+        var unevaluatedFirst = args.first,
+            unevaluatedSecond = args.second(),
+            newList = new LispList();
+            
+        newList.first = LispEvaluator.eval(unevaluatedFirst, env);
+        newList.rest  = LispEvaluator.eval(unevaluatedSecond, env);
+        
+        return newList;
+    }
+});
+
+
+/**
+ * first
+ */
+var LispBuiltInFirstFunction = LispBuiltInFunction.extend({
+    /**
+     * Aktion bei einem "first" LispSymbol
+     * @param {LispObject} args Argumente der Aktion
+     * @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+     */
+    action: function(args, env) {
+        var list = LispEvaluator.eval(args.first, env);
+        return list.first;
+    }
+});
+
+
+/**
+ * rest
+ */
+var LispBuiltInRestFunction = LispBuiltInFunction.extend({
+    /**
+     * Aktion bei einem "rest" LispSymbol
+     * @param {LispObject} args Argumente der Aktion
+     * @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+     */
+    action: function(args, env) {
+        var list = LispEvaluator.eval(args.first, env);
+        return list.rest;
+    }
+});

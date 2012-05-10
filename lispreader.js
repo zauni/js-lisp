@@ -9,11 +9,11 @@
 var LispReader = function(frm) {
     _.bindAll(this, "read");
     
+    LispEvaluator.defineBuiltInFunctions();
+    
     $(frm).on("submit", this.read);
     
     this.inputField = $("#inputstream");
-    
-    LispEvaluator.defineBuiltInFunctions();
     
     this.activateAutocomplete();
 };
@@ -325,7 +325,10 @@ LispEvaluator = {
             "/": "Divide",
             "define": "Define",
             "lambda": "Lambda",
-            "if": "If"
+            "if": "If",
+            "cons": "Cons",
+            "first": "First",
+            "rest": "Rest"
         }, function(className, symbol) {
             var key = new LispSymbol(),
                 klass = "LispBuiltIn" + className + "Function";
