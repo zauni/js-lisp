@@ -1,15 +1,3 @@
-// Helper Functions
-
-function assert_(condition, desc) {
-    console[ condition ? "log" : "error" ]( (condition ? "PASS " : "FAIL ") + desc);
-}
-
-var toType = function(obj) {
-  return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
-}
-
-
-
 // Helper Functions (from Backbone.js)
 
 // Shared empty constructor function to aid in prototype-chain creation.

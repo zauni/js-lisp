@@ -19,9 +19,10 @@ var LispReader = function(frm) {
 };
 
 _.extend(LispReader.prototype, {
-    symbolRegex: /^[^\(\)\.\s]/,
+    symbolRegex: /^[^\(\)\.\s']/,
     integerRegex: /^\d/,
     listRegex: /^\(/,
+    quoteRegex: /^'/,
     seperators: /\s/,
     
     reservedWords: /(nil|true|false)/,
@@ -103,6 +104,10 @@ _.extend(LispReader.prototype, {
         else if(this.symbolRegex.test(this.input.peek())) {
             ret = this.readSymbol();
         }
+        // Quote
+        else if(this.quoteRegex.test(this.input.peek())) {
+            ret = this.readQuote();
+        }
         // List
         else if(this.listRegex.test(this.input.peek())) {
             ret = this.readList();
@@ -149,6 +154,26 @@ _.extend(LispReader.prototype, {
         
         symbol.characters = character;
         return symbol;
+    },
+    
+    /**
+     * Liest Quotes
+     * @return {LispList}
+     */
+    readQuote: function() {
+        this.input.next(); // skip '
+        
+        var expr = this.readObject(),
+            evalList = new LispList(),
+            quoteSym = new LispSymbol();
+        
+        quoteSym.characters = "quote";
+        evalList.first = quoteSym;
+        evalList.rest = new LispList();
+        evalList.rest.first = expr;
+        evalList.rest.rest = new LispNil();
+        
+        return evalList;
     },
     
     /**
@@ -328,7 +353,8 @@ LispEvaluator = {
             "if": "If",
             "cons": "Cons",
             "first": "First",
-            "rest": "Rest"
+            "rest": "Rest",
+            "quote": "Quote"
         }, function(className, symbol) {
             var key = new LispSymbol(),
                 klass = "LispBuiltIn" + className + "Function";

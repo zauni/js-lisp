@@ -248,3 +248,19 @@ var LispBuiltInRestFunction = LispBuiltInFunction.extend({
         return list.rest;
     }
 });
+
+
+/**
+ * quote
+ * Evaluiert die Parameter nicht, sondern gibt sie einfach zurück
+ */
+var LispBuiltInQuoteFunction = LispBuiltInFunction.extend({
+    /**
+     * Aktion bei einem "quote" LispSymbol
+     * @param {LispObject} args Argumente der Aktion
+     * @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+     */
+    action: function(args, env) {
+        return args.first;
+    }
+});
