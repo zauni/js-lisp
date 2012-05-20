@@ -351,6 +351,7 @@ LispEvaluator = {
             "define": "Define",
             "lambda": "Lambda",
             "if": "If",
+            "eq?": "Eq",
             "cons": "Cons",
             "first": "First",
             "rest": "Rest",

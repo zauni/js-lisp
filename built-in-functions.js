@@ -50,6 +50,8 @@ var LispBuiltInMinusFunction = LispBuiltInFunction.extend({
         var arg = LispEvaluator.eval(args.first, env),
             erg = new LispInteger();
         
+        /* TODO: Rekursion als Schleife auflösen, sonst ist die Operatorreihenfolge falsch! */
+        
         if(arg && !args.rest.isLispNil) {
             erg.value = arg - (this.action(args.rest, env)).value;
             return erg;
@@ -192,6 +194,42 @@ var LispBuiltInIfFunction = LispBuiltInFunction.extend({
         return cond && cond.isLispTrue
                ? LispEvaluator.eval(unevaluatedIfBody, env)
                : LispEvaluator.eval(unevaluatedElseBody, env);
+    }
+});
+
+
+/**
+ * eq?
+ */
+var LispBuiltInEqFunction = LispBuiltInFunction.extend({
+    /**
+     * Aktion bei einem "eq?" LispSymbol
+     * @param {LispObject} args Argumente der Aktion
+     * @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+     */
+    action: function(args, env) {
+        var unevaluatedA = args.first,
+            unevaluatedB = args.second(),
+            A = LispEvaluator.eval(unevaluatedA, env),
+            B = LispEvaluator.eval(unevaluatedB, env),
+            comp;
+            
+        comp = function(a, b) {
+            if(a.isLispSymbol && b.isLispSymbol) {
+                return a.characters === b.characters;
+            }
+            else if(a.isLispAtom && b.isLispAtom) {
+                return a.value === b.value;
+            }
+            else if(a.isLispList && b.isLispList) {
+                return comp(a.first, b.first) && comp(a.rest, b.rest);
+            }
+            else {
+                return a == b;
+            }
+        }
+        
+        return comp(A, B);
     }
 });
 
