@@ -1,3 +1,5 @@
+root = (exports ? this)
+
 ##
 # Elternklasse für alle LISP Objekte
 ##
@@ -14,7 +16,7 @@ class LispObject
     
 LispObject.extend = extend
 
-(exports ? this).LispObject = LispObject
+root.LispObject = LispObject
 
 ##
 # Atome
@@ -22,7 +24,7 @@ LispObject.extend = extend
 class LispAtom extends LispObject
     isLispAtom: true
 
-(exports ? this).LispAtom = LispAtom
+root.LispAtom = LispAtom
 
 ##
 # Nummern
@@ -35,7 +37,7 @@ class LispInteger extends LispAtom
     toString: ->
         @value
 
-(exports ? this).LispInteger = LispInteger
+root.LispInteger = LispInteger
 
 ##
 # Symbole
@@ -51,7 +53,7 @@ class LispSymbol extends LispAtom
     toString: ->
         @characters
 
-(exports ? this).LispSymbol = LispSymbol
+root.LispSymbol = LispSymbol
 
 ##
 # Listen
@@ -71,7 +73,7 @@ class LispList extends LispObject
     toString: ->
         "(#{@first.toString()} #{@rest.toString()})"
 
-(exports ? this).LispList = LispList
+root.LispList = LispList
 
 ##
 # nil
@@ -82,7 +84,7 @@ class LispNil extends LispAtom
     toString: ->
         "nil"
 
-(exports ? this).LispNil = LispNil
+root.LispNil = LispNil
 
 ##
 # Boolean true
@@ -93,7 +95,7 @@ class LispTrue extends LispAtom
     toString: ->
         "true"
 
-(exports ? this).LispTrue = LispTrue
+root.LispTrue = LispTrue
 
 ##
 # Boolean false
@@ -104,7 +106,7 @@ class LispFalse extends LispAtom
     toString: ->
         "false"
 
-(exports ? this).LispFalse = LispFalse
+root.LispFalse = LispFalse
 
 ##
 # User Defined Function (lambda)
@@ -122,7 +124,7 @@ class LispUserDefinedFunction extends LispAtom
     byteCode: null
     literals: null
         
-(exports ? this).LispUserDefinedFunction = LispUserDefinedFunction
+root.LispUserDefinedFunction = LispUserDefinedFunction
 
 class LispByteCodeAssembler
     assemble: ->

@@ -1,7 +1,9 @@
 (function() {
-  var LispAtom, LispFalse, LispInteger, LispList, LispNil, LispObject, LispSymbol, LispTrue, LispUserDefinedFunction,
+  var LispAtom, LispByteCodeAssembler, LispFalse, LispInteger, LispList, LispNil, LispObject, LispSymbol, LispTrue, LispUserDefinedFunction, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+
+  root = typeof exports !== "undefined" && exports !== null ? exports : this;
 
   LispObject = (function() {
 
@@ -33,7 +35,7 @@
 
   LispObject.extend = extend;
 
-  (typeof exports !== "undefined" && exports !== null ? exports : this).LispObject = LispObject;
+  root.LispObject = LispObject;
 
   LispAtom = (function(_super) {
 
@@ -51,7 +53,7 @@
 
   })(LispObject);
 
-  (typeof exports !== "undefined" && exports !== null ? exports : this).LispAtom = LispAtom;
+  root.LispAtom = LispAtom;
 
   LispInteger = (function(_super) {
 
@@ -75,7 +77,7 @@
 
   })(LispAtom);
 
-  (typeof exports !== "undefined" && exports !== null ? exports : this).LispInteger = LispInteger;
+  root.LispInteger = LispInteger;
 
   LispSymbol = (function(_super) {
 
@@ -103,7 +105,7 @@
 
   })(LispAtom);
 
-  (typeof exports !== "undefined" && exports !== null ? exports : this).LispSymbol = LispSymbol;
+  root.LispSymbol = LispSymbol;
 
   LispList = (function(_super) {
 
@@ -146,7 +148,7 @@
 
   })(LispObject);
 
-  (typeof exports !== "undefined" && exports !== null ? exports : this).LispList = LispList;
+  root.LispList = LispList;
 
   LispNil = (function(_super) {
 
@@ -170,7 +172,7 @@
 
   })(LispAtom);
 
-  (typeof exports !== "undefined" && exports !== null ? exports : this).LispNil = LispNil;
+  root.LispNil = LispNil;
 
   LispTrue = (function(_super) {
 
@@ -194,7 +196,7 @@
 
   })(LispAtom);
 
-  (typeof exports !== "undefined" && exports !== null ? exports : this).LispTrue = LispTrue;
+  root.LispTrue = LispTrue;
 
   LispFalse = (function(_super) {
 
@@ -218,7 +220,7 @@
 
   })(LispAtom);
 
-  (typeof exports !== "undefined" && exports !== null ? exports : this).LispFalse = LispFalse;
+  root.LispFalse = LispFalse;
 
   LispUserDefinedFunction = (function(_super) {
 
@@ -244,10 +246,26 @@
       return "((User Defined Function))";
     };
 
+    LispUserDefinedFunction.prototype.byteCode = null;
+
+    LispUserDefinedFunction.prototype.literals = null;
+
     return LispUserDefinedFunction;
 
   })(LispAtom);
 
-  (typeof exports !== "undefined" && exports !== null ? exports : this).LispUserDefinedFunction = LispUserDefinedFunction;
+  root.LispUserDefinedFunction = LispUserDefinedFunction;
+
+  LispByteCodeAssembler = (function() {
+
+    LispByteCodeAssembler.name = 'LispByteCodeAssembler';
+
+    function LispByteCodeAssembler() {}
+
+    LispByteCodeAssembler.prototype.assemble = function() {};
+
+    return LispByteCodeAssembler;
+
+  })();
 
 }).call(this);

@@ -1,3 +1,5 @@
+root = (exports ? this)
+
 class LispReader
     constructor: (frm) ->
         _.bindAll this, "read"
@@ -156,7 +158,7 @@ class LispReader
     print: (lispObject, inputText) ->
         $("#output").append "<li> &gt;&gt; #{inputText}</li><li>#{lispObject.toString()}</li>"
 
-(exports ? this).LispReader = LispReader
+root.LispReader = LispReader
 
 class LispEnvironment
     constructor: (parentEnv) ->
@@ -185,7 +187,7 @@ class LispEnvironment
             key: symbol
             value: lispObject
 
-(exports ? this).LispEnvironment = LispEnvironment
+root.LispEnvironment = LispEnvironment
 
 ##
 # LispEvaluator um Lisp Objekte zu evaluieren
@@ -259,4 +261,4 @@ LispEvaluator =
             key.characters = symbol
             env.addBindingFor key, new window[klass]()
 
-(exports ? this).LispEvaluator = LispEvaluator
+root.LispEvaluator = LispEvaluator
