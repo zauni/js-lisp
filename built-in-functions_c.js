@@ -152,9 +152,13 @@
     }
 
     LispBuiltInDefineFunction.prototype.action = function(args, env) {
-      var body, func, funcName, unevaluatedArgs, value, varNameOrFunc;
+      var body, definedBinding, func, funcName, unevaluatedArgs, value, varNameOrFunc;
       varNameOrFunc = args.first;
       if (varNameOrFunc.isLispSymbol) {
+        definedBinding = env.getBindingFor(varNameOrFunc);
+        if (!definedBinding.isLispNil) {
+          return definedBinding;
+        }
         value = LispEvaluator["eval"](args.rest.first, env);
         env.addBindingFor(varNameOrFunc, value);
         return value;

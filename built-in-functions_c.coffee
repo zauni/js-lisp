@@ -111,6 +111,10 @@ class LispBuiltInDefineFunction extends LispBuiltInFunction
         varNameOrFunc = args.first
 
         if varNameOrFunc.isLispSymbol
+            # Bindings, die es schon gibt, werden nicht überschrieben!
+            definedBinding = env.getBindingFor varNameOrFunc
+            return definedBinding if not definedBinding.isLispNil
+            
             value = LispEvaluator.eval(args.rest.first, env)
             env.addBindingFor varNameOrFunc, value
             return value
