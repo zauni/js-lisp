@@ -187,6 +187,17 @@ class LispEnvironment
             key: symbol
             value: lispObject
 
+    ##
+    # Ändert ein Binding im Environment
+    # @param {LispSymbol} symbol "Key" in der Environment HashTable
+    # @param {LispObject} lispObject "Value" in der Environment HashTable
+    ##
+    changeBindingFor: (symbol, lispObject) ->
+        for binding in @localBindings
+            if binding.key.equals symbol
+                binding.value = lispObject
+                return
+
 root.LispEnvironment = LispEnvironment
 
 ##
@@ -247,14 +258,15 @@ LispEvaluator =
             "-": "Minus"
             "*": "Multiply"
             "/": "Divide"
-            define: "Define"
-            lambda: "Lambda"
-            if: "If"
+            "define": "Define"
+            "set!": "Set"
+            "lambda": "Lambda"
+            "if": "If"
             "eq?": "Eq"
-            cons: "Cons"
-            first: "First"
-            rest: "Rest"
-            quote: "Quote"
+            "cons": "Cons"
+            "first": "First"
+            "rest": "Rest"
+            "quote": "Quote"
         , (className, symbol) ->
             key = new LispSymbol()
             klass = "LispBuiltIn#{className}Function"

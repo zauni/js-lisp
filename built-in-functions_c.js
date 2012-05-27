@@ -1,5 +1,5 @@
 (function() {
-  var LispBuiltInConsFunction, LispBuiltInDefineFunction, LispBuiltInDivideFunction, LispBuiltInEqFunction, LispBuiltInFirstFunction, LispBuiltInFunction, LispBuiltInIfFunction, LispBuiltInLambdaFunction, LispBuiltInMinusFunction, LispBuiltInMultiplyFunction, LispBuiltInPlusFunction, LispBuiltInQuoteFunction, LispBuiltInRestFunction, root,
+  var LispBuiltInConsFunction, LispBuiltInDefineFunction, LispBuiltInDivideFunction, LispBuiltInEqFunction, LispBuiltInFirstFunction, LispBuiltInFunction, LispBuiltInIfFunction, LispBuiltInLambdaFunction, LispBuiltInMinusFunction, LispBuiltInMultiplyFunction, LispBuiltInPlusFunction, LispBuiltInQuoteFunction, LispBuiltInRestFunction, LispBuiltInSetFunction, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
@@ -178,6 +178,37 @@
   })(LispBuiltInFunction);
 
   root.LispBuiltInDefineFunction = LispBuiltInDefineFunction;
+
+  LispBuiltInSetFunction = (function(_super) {
+
+    __extends(LispBuiltInSetFunction, _super);
+
+    LispBuiltInSetFunction.name = 'LispBuiltInSetFunction';
+
+    function LispBuiltInSetFunction() {
+      return LispBuiltInSetFunction.__super__.constructor.apply(this, arguments);
+    }
+
+    LispBuiltInSetFunction.prototype.action = function(args, env) {
+      var definedBinding, value, varName;
+      varName = args.first;
+      value = LispEvaluator["eval"](args.rest.first, env);
+      if (varName.isLispSymbol) {
+        definedBinding = env.getBindingFor(varName);
+        if (definedBinding.isLispNil) {
+          throw "" + varName + " is not defined and cannot be set to " + value;
+        }
+        env.changeBindingFor(varName, value);
+        return value;
+      }
+      return new LispNil();
+    };
+
+    return LispBuiltInSetFunction;
+
+  })(LispBuiltInFunction);
+
+  root.LispBuiltInSetFunction = LispBuiltInSetFunction;
 
   LispBuiltInLambdaFunction = (function(_super) {
 

@@ -198,6 +198,18 @@
       });
     };
 
+    LispEnvironment.prototype.changeBindingFor = function(symbol, lispObject) {
+      var binding, _i, _len, _ref;
+      _ref = this.localBindings;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        binding = _ref[_i];
+        if (binding.key.equals(symbol)) {
+          binding.value = lispObject;
+          return;
+        }
+      }
+    };
+
     return LispEnvironment;
 
   })();
@@ -253,14 +265,15 @@
         "-": "Minus",
         "*": "Multiply",
         "/": "Divide",
-        define: "Define",
-        lambda: "Lambda",
+        "define": "Define",
+        "set!": "Set",
+        "lambda": "Lambda",
         "if": "If",
         "eq?": "Eq",
-        cons: "Cons",
-        first: "First",
-        rest: "Rest",
-        quote: "Quote"
+        "cons": "Cons",
+        "first": "First",
+        "rest": "Rest",
+        "quote": "Quote"
       }, function(className, symbol) {
         var key, klass;
         key = new LispSymbol();

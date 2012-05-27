@@ -132,6 +132,31 @@ class LispBuiltInDefineFunction extends LispBuiltInFunction
 root.LispBuiltInDefineFunction = LispBuiltInDefineFunction
 
 ##
+# set!
+##
+class LispBuiltInSetFunction extends LispBuiltInFunction
+
+    ##
+    # Aktion bei einem "set!" LispSymbol
+    # @param {LispObject} args Argumente der Aktion
+    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    ##
+    action: (args, env) ->
+        varName = args.first
+        value = LispEvaluator.eval(args.rest.first, env)
+
+        if varName.isLispSymbol
+            definedBinding = env.getBindingFor varName
+            throw "#{varName} is not defined and cannot be set to #{value}" if definedBinding.isLispNil
+            
+            env.changeBindingFor varName, value
+            return value
+
+        new LispNil()
+        
+root.LispBuiltInSetFunction = LispBuiltInSetFunction
+
+##
 # lambda
 ##
 class LispBuiltInLambdaFunction extends LispBuiltInFunction
