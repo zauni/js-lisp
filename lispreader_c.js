@@ -38,13 +38,20 @@
     LispReader.prototype.knownSymbols = {};
 
     LispReader.prototype.read = function(evt) {
-      var inputText;
+      var erg, inputText;
       if (evt != null) {
         evt.preventDefault();
       }
       inputText = this.inputField.val();
       this.input = new StringParser(inputText);
-      this.print(LispEvaluator["eval"](this.readObject()), inputText);
+      try {
+        erg = LispEvaluator["eval"](this.readObject());
+      } catch (error) {
+        this.print(error, inputText);
+        this.inputField.val("");
+        return;
+      }
+      this.print(erg, inputText);
       this.inputField.val("");
       return this.updateAutocompleteData();
     };

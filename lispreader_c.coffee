@@ -30,7 +30,15 @@ class LispReader
         evt.preventDefault() if evt?
         inputText = @inputField.val()
         @input = new StringParser(inputText)
-        @print LispEvaluator.eval(@readObject()), inputText
+        
+        try
+            erg = LispEvaluator.eval(@readObject())
+        catch error
+            @print error, inputText
+            @inputField.val ""
+            return
+        
+        @print erg, inputText
         @inputField.val ""
         @updateAutocompleteData()
 
