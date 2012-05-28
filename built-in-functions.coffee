@@ -261,7 +261,7 @@ class LispBuiltInEqFunction extends LispBuiltInFunction
         B = LispEvaluator.eval(unevaluatedB, env)
         
         comp = (a, b) ->
-            if a.isLispSymbol and b.isLispSymbol
+            if (a.isLispSymbol and b.isLispSymbol) or (a.isLispString and b.isLispString)
                 a.characters is b.characters
             else if a.isLispAtom and b.isLispAtom
                 a.value is b.value
@@ -270,9 +270,76 @@ class LispBuiltInEqFunction extends LispBuiltInFunction
             else
                 a is b
 
-        return comp A, B
+        return (if comp A, B then new LispTrue() else new LispFalse())
         
 root.LispBuiltInEqFunction = LispBuiltInEqFunction
+
+##
+# and
+##
+class LispBuiltInAndFunction extends LispBuiltInFunction
+
+    ##
+    # Aktion bei einem "and" LispSymbol
+    # @param {LispObject} args Argumente der Aktion
+    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    ##
+    action: (args, env) ->
+        unevaluatedCondA = args.first
+        unevaluatedCondB = args.second()
+        
+        condA = LispEvaluator.eval(unevaluatedCondA, env)
+        condB = LispEvaluator.eval(unevaluatedCondB, env)
+        
+        if condA?.isLispTrue and condB?.isLispTrue
+            return new LispTrue()
+        new LispFalse()
+        
+root.LispBuiltInAndFunction = LispBuiltInAndFunction
+
+##
+# or
+##
+class LispBuiltInOrFunction extends LispBuiltInFunction
+
+    ##
+    # Aktion bei einem "or" LispSymbol
+    # @param {LispObject} args Argumente der Aktion
+    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    ##
+    action: (args, env) ->
+        unevaluatedCondA = args.first
+        unevaluatedCondB = args.second()
+        
+        condA = LispEvaluator.eval(unevaluatedCondA, env)
+        condB = LispEvaluator.eval(unevaluatedCondB, env)
+        
+        if condA?.isLispTrue or condB?.isLispTrue
+            return new LispTrue()
+        new LispFalse()
+        
+root.LispBuiltInOrFunction = LispBuiltInOrFunction
+
+##
+# not
+##
+class LispBuiltInNotFunction extends LispBuiltInFunction
+
+    ##
+    # Aktion bei einem "not" LispSymbol
+    # @param {LispObject} args Argumente der Aktion
+    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    ##
+    action: (args, env) ->
+        unevaluatedCond = args.first
+        
+        cond = LispEvaluator.eval(unevaluatedCond, env)
+        
+        if cond?.isLispTrue
+            return new LispFalse()
+        new LispTrue()
+        
+root.LispBuiltInNotFunction = LispBuiltInNotFunction
 
 ##
 # cons

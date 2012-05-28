@@ -1,5 +1,5 @@
 (function() {
-  var LispBuiltInBeginFunction, LispBuiltInConsFunction, LispBuiltInDefineFunction, LispBuiltInDivideFunction, LispBuiltInEqFunction, LispBuiltInFirstFunction, LispBuiltInFunction, LispBuiltInIfFunction, LispBuiltInLambdaFunction, LispBuiltInLetFunction, LispBuiltInMinusFunction, LispBuiltInMultiplyFunction, LispBuiltInPlusFunction, LispBuiltInQuoteFunction, LispBuiltInRestFunction, LispBuiltInSetFunction, root,
+  var LispBuiltInAndFunction, LispBuiltInBeginFunction, LispBuiltInConsFunction, LispBuiltInDefineFunction, LispBuiltInDivideFunction, LispBuiltInEqFunction, LispBuiltInFirstFunction, LispBuiltInFunction, LispBuiltInIfFunction, LispBuiltInLambdaFunction, LispBuiltInLetFunction, LispBuiltInMinusFunction, LispBuiltInMultiplyFunction, LispBuiltInNotFunction, LispBuiltInOrFunction, LispBuiltInPlusFunction, LispBuiltInQuoteFunction, LispBuiltInRestFunction, LispBuiltInSetFunction, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
@@ -339,7 +339,7 @@
       A = LispEvaluator["eval"](unevaluatedA, env);
       B = LispEvaluator["eval"](unevaluatedB, env);
       comp = function(a, b) {
-        if (a.isLispSymbol && b.isLispSymbol) {
+        if ((a.isLispSymbol && b.isLispSymbol) || (a.isLispString && b.isLispString)) {
           return a.characters === b.characters;
         } else if (a.isLispAtom && b.isLispAtom) {
           return a.value === b.value;
@@ -349,7 +349,7 @@
           return a === b;
         }
       };
-      return comp(A, B);
+      return (comp(A, B) ? new LispTrue() : new LispFalse());
     };
 
     return LispBuiltInEqFunction;
@@ -357,6 +357,88 @@
   })(LispBuiltInFunction);
 
   root.LispBuiltInEqFunction = LispBuiltInEqFunction;
+
+  LispBuiltInAndFunction = (function(_super) {
+
+    __extends(LispBuiltInAndFunction, _super);
+
+    LispBuiltInAndFunction.name = 'LispBuiltInAndFunction';
+
+    function LispBuiltInAndFunction() {
+      return LispBuiltInAndFunction.__super__.constructor.apply(this, arguments);
+    }
+
+    LispBuiltInAndFunction.prototype.action = function(args, env) {
+      var condA, condB, unevaluatedCondA, unevaluatedCondB;
+      unevaluatedCondA = args.first;
+      unevaluatedCondB = args.second();
+      condA = LispEvaluator["eval"](unevaluatedCondA, env);
+      condB = LispEvaluator["eval"](unevaluatedCondB, env);
+      if ((condA != null ? condA.isLispTrue : void 0) && (condB != null ? condB.isLispTrue : void 0)) {
+        return new LispTrue();
+      }
+      return new LispFalse();
+    };
+
+    return LispBuiltInAndFunction;
+
+  })(LispBuiltInFunction);
+
+  root.LispBuiltInAndFunction = LispBuiltInAndFunction;
+
+  LispBuiltInOrFunction = (function(_super) {
+
+    __extends(LispBuiltInOrFunction, _super);
+
+    LispBuiltInOrFunction.name = 'LispBuiltInOrFunction';
+
+    function LispBuiltInOrFunction() {
+      return LispBuiltInOrFunction.__super__.constructor.apply(this, arguments);
+    }
+
+    LispBuiltInOrFunction.prototype.action = function(args, env) {
+      var condA, condB, unevaluatedCondA, unevaluatedCondB;
+      unevaluatedCondA = args.first;
+      unevaluatedCondB = args.second();
+      condA = LispEvaluator["eval"](unevaluatedCondA, env);
+      condB = LispEvaluator["eval"](unevaluatedCondB, env);
+      if ((condA != null ? condA.isLispTrue : void 0) || (condB != null ? condB.isLispTrue : void 0)) {
+        return new LispTrue();
+      }
+      return new LispFalse();
+    };
+
+    return LispBuiltInOrFunction;
+
+  })(LispBuiltInFunction);
+
+  root.LispBuiltInOrFunction = LispBuiltInOrFunction;
+
+  LispBuiltInNotFunction = (function(_super) {
+
+    __extends(LispBuiltInNotFunction, _super);
+
+    LispBuiltInNotFunction.name = 'LispBuiltInNotFunction';
+
+    function LispBuiltInNotFunction() {
+      return LispBuiltInNotFunction.__super__.constructor.apply(this, arguments);
+    }
+
+    LispBuiltInNotFunction.prototype.action = function(args, env) {
+      var cond, unevaluatedCond;
+      unevaluatedCond = args.first;
+      cond = LispEvaluator["eval"](unevaluatedCond, env);
+      if (cond != null ? cond.isLispTrue : void 0) {
+        return new LispFalse();
+      }
+      return new LispTrue();
+    };
+
+    return LispBuiltInNotFunction;
+
+  })(LispBuiltInFunction);
+
+  root.LispBuiltInNotFunction = LispBuiltInNotFunction;
 
   LispBuiltInConsFunction = (function(_super) {
 
