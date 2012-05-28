@@ -1,5 +1,5 @@
 (function() {
-  var LispAtom, LispByteCodeAssembler, LispFalse, LispInteger, LispList, LispNil, LispObject, LispSymbol, LispTrue, LispUserDefinedFunction, root,
+  var LispAtom, LispByteCodeAssembler, LispFalse, LispInteger, LispList, LispNil, LispObject, LispString, LispSymbol, LispTrue, LispUserDefinedFunction, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
@@ -14,6 +14,8 @@
     LispObject.prototype.isLispAtom = false;
 
     LispObject.prototype.isLispInteger = false;
+
+    LispObject.prototype.isLispString = false;
 
     LispObject.prototype.isLispSymbol = false;
 
@@ -78,6 +80,30 @@
   })(LispAtom);
 
   root.LispInteger = LispInteger;
+
+  LispString = (function(_super) {
+
+    __extends(LispString, _super);
+
+    LispString.name = 'LispString';
+
+    function LispString(characters) {
+      this.characters = characters;
+    }
+
+    LispString.prototype.characters = "";
+
+    LispString.prototype.isLispString = true;
+
+    LispString.prototype.toString = function() {
+      return "\"" + this.characters + "\"";
+    };
+
+    return LispString;
+
+  })(LispAtom);
+
+  root.LispString = LispString;
 
   LispSymbol = (function(_super) {
 

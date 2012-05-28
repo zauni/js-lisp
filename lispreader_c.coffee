@@ -8,10 +8,11 @@ class LispReader
         @inputField = $("#inputstream")
         @activateAutocomplete()
         
-    symbolRegex: /^[^\(\)\.\s']/
+    symbolRegex: /^[^\(\)\.\s'"]/
     integerRegex: /^\d/
     listRegex: /^\(/
     quoteRegex: /^'/
+    stringRegex: /^"/
     seperators: /\s/
     reservedWords: /(nil|true|false)/
     reservedObjects:
@@ -88,6 +89,8 @@ class LispReader
         @input.skip @seperators
         if @integerRegex.test @input.peek()
             @readInteger()
+        else if @stringRegex.test @input.peek()
+            @readString()
         else if @symbolRegex.test @input.peek()
             @readSymbol()
         else if @quoteRegex.test @input.peek()
@@ -103,8 +106,18 @@ class LispReader
     ##
     readInteger: ->
         character = ""
-        character += @input.next()  while not @input.atEnd() and @integerRegex.test(@input.peek())
+        character += @input.next() while not @input.atEnd() and @integerRegex.test(@input.peek())
         new LispInteger(parseInt(character, 10))
+
+    ##
+    # Liest Strings
+    # @return {LispString}
+    ##
+    readString: ->
+        @input.next() # skip "
+        character = ""
+        character += @input.next() until @input.atEnd() or @stringRegex.test(@input.peek())
+        new LispString(character)
 
     ##
     # Liest Symbole

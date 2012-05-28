@@ -15,13 +15,15 @@
       this.activateAutocomplete();
     }
 
-    LispReader.prototype.symbolRegex = /^[^\(\)\.\s']/;
+    LispReader.prototype.symbolRegex = /^[^\(\)\.\s'"]/;
 
     LispReader.prototype.integerRegex = /^\d/;
 
     LispReader.prototype.listRegex = /^\(/;
 
     LispReader.prototype.quoteRegex = /^'/;
+
+    LispReader.prototype.stringRegex = /^"/;
 
     LispReader.prototype.seperators = /\s/;
 
@@ -100,6 +102,8 @@
       this.input.skip(this.seperators);
       if (this.integerRegex.test(this.input.peek())) {
         return this.readInteger();
+      } else if (this.stringRegex.test(this.input.peek())) {
+        return this.readString();
       } else if (this.symbolRegex.test(this.input.peek())) {
         return this.readSymbol();
       } else if (this.quoteRegex.test(this.input.peek())) {
@@ -118,6 +122,16 @@
         character += this.input.next();
       }
       return new LispInteger(parseInt(character, 10));
+    };
+
+    LispReader.prototype.readString = function() {
+      var character;
+      this.input.next();
+      character = "";
+      while (!(this.input.atEnd() || this.stringRegex.test(this.input.peek()))) {
+        character += this.input.next();
+      }
+      return new LispString(character);
     };
 
     LispReader.prototype.readSymbol = function() {

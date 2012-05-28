@@ -6,6 +6,7 @@ root = (exports ? this)
 class LispObject
     isLispAtom: false
     isLispInteger: false
+    isLispString: false
     isLispSymbol: false
     isLispList: false
     isLispNil: false
@@ -38,6 +39,19 @@ class LispInteger extends LispAtom
         @value
 
 root.LispInteger = LispInteger
+
+##
+# Strings
+##
+class LispString extends LispAtom
+    constructor: (@characters) ->
+        
+    characters: ""
+    isLispString: true
+    toString: ->
+        "\"#{@characters}\""
+
+root.LispString = LispString
 
 ##
 # Symbole
