@@ -14,8 +14,6 @@ class LispObject
     isLispFalse: false
     isLispBuiltInFunction: false
     isUserDefinedFunction: false
-    
-LispObject.extend = extend
 
 root.LispObject = LispObject
 
