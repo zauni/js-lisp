@@ -257,7 +257,6 @@ LispEvaluator =
     # Definiert alle im System vorhandenen "Built-In" Funktionen
     ##
     defineBuiltInFunctions: ->
-        env = @env
         _.each
             "+": "Plus"
             "-": "Minus"
@@ -273,10 +272,9 @@ LispEvaluator =
             "first": "First"
             "rest": "Rest"
             "quote": "Quote"
-        , (className, symbol) ->
-            key = new LispSymbol()
+        , (className, symbol) =>
             klass = "LispBuiltIn#{className}Function"
-            key.characters = symbol
-            env.addBindingFor key, new window[klass]()
+            key = new LispSymbol(symbol)
+            @env.addBindingFor key, new window[klass]()
 
 root.LispEvaluator = LispEvaluator

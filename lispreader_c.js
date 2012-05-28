@@ -262,8 +262,7 @@
       return LispEvaluator["eval"](func.bodyList, newEnv);
     },
     defineBuiltInFunctions: function() {
-      var env;
-      env = this.env;
+      var _this = this;
       return _.each({
         "+": "Plus",
         "-": "Minus",
@@ -281,10 +280,9 @@
         "quote": "Quote"
       }, function(className, symbol) {
         var key, klass;
-        key = new LispSymbol();
         klass = "LispBuiltIn" + className + "Function";
-        key.characters = symbol;
-        return env.addBindingFor(key, new window[klass]());
+        key = new LispSymbol(symbol);
+        return _this.env.addBindingFor(key, new window[klass]());
       });
     }
   };
