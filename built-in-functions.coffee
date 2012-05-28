@@ -157,6 +157,36 @@ class LispBuiltInSetFunction extends LispBuiltInFunction
 root.LispBuiltInSetFunction = LispBuiltInSetFunction
 
 ##
+# let
+##
+class LispBuiltInLetFunction extends LispBuiltInFunction
+
+    ##
+    # Aktion bei einem "let" LispSymbol
+    # @param {LispObject} args Argumente der Aktion
+    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    ##
+    action: (args, env) ->
+        keyValueList = args.first
+        currentPair = keyValueList.first
+        bodies = args.rest
+        tempEnv = new LispEnvironment(env);
+        
+        until keyValueList.isLispNil
+            key = currentPair.first
+            value = currentPair.second()
+            evaluate = new LispList(new LispSymbol("define"), new LispList(key, new LispList(value, new LispNil())))
+            # lass die "define" Funktion ihren Job machen
+            LispEvaluator.eval(evaluate, tempEnv)
+            keyValueList = keyValueList.rest
+            currentPair = keyValueList.first
+            
+        evaluate = new LispList(new LispSymbol("begin"), bodies);
+        LispEvaluator.eval(evaluate, tempEnv)
+        
+root.LispBuiltInLetFunction = LispBuiltInLetFunction
+
+##
 # lambda
 ##
 class LispBuiltInLambdaFunction extends LispBuiltInFunction

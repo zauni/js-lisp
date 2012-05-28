@@ -49,6 +49,9 @@
       try {
         erg = LispEvaluator["eval"](this.readObject());
       } catch (error) {
+        if (console && console.error) {
+          console.error(error);
+        }
         this.print(error, inputText);
         this.inputField.val("");
         return;
@@ -253,10 +256,8 @@
       unevaluatedArgs = lispObj.rest;
       if (evaluatedFunc.isLispBuiltInFunction) {
         return evaluatedFunc.action(unevaluatedArgs, env);
-      } else {
-        if (evaluatedFunc.isUserDefinedFunction) {
-          return this.evalUserDefinedFunction(evaluatedFunc, unevaluatedArgs, env);
-        }
+      } else if (evaluatedFunc.isUserDefinedFunction) {
+        return this.evalUserDefinedFunction(evaluatedFunc, unevaluatedArgs, env);
       }
       return new LispNil();
     },
@@ -284,6 +285,7 @@
         "/": "Divide",
         "define": "Define",
         "set!": "Set",
+        "let": "Let",
         "lambda": "Lambda",
         "begin": "Begin",
         "if": "If",

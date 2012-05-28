@@ -35,6 +35,7 @@ class LispReader
         try
             erg = LispEvaluator.eval(@readObject())
         catch error
+            console.error error if console and console.error
             @print error, inputText
             @inputField.val ""
             return
@@ -238,12 +239,15 @@ LispEvaluator =
         if lispObj.isLispAtom
             return env.getBindingFor(lispObj)  if lispObj.isLispSymbol
             return lispObj
+        
         unevaluatedFunc = lispObj.first
         evaluatedFunc = @eval(unevaluatedFunc, env)
         unevaluatedArgs = lispObj.rest
+        
         if evaluatedFunc.isLispBuiltInFunction
             return evaluatedFunc.action(unevaluatedArgs, env)
-        else return @evalUserDefinedFunction(evaluatedFunc, unevaluatedArgs, env)  if evaluatedFunc.isUserDefinedFunction
+        else if evaluatedFunc.isUserDefinedFunction
+            return @evalUserDefinedFunction(evaluatedFunc, unevaluatedArgs, env)
         new LispNil()
         
     ##
@@ -277,6 +281,7 @@ LispEvaluator =
             "/": "Divide"
             "define": "Define"
             "set!": "Set"
+            "let": "Let"
             "lambda": "Lambda"
             "begin": "Begin"
             "if": "If"

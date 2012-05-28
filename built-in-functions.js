@@ -1,5 +1,5 @@
 (function() {
-  var LispBuiltInBeginFunction, LispBuiltInConsFunction, LispBuiltInDefineFunction, LispBuiltInDivideFunction, LispBuiltInEqFunction, LispBuiltInFirstFunction, LispBuiltInFunction, LispBuiltInIfFunction, LispBuiltInLambdaFunction, LispBuiltInMinusFunction, LispBuiltInMultiplyFunction, LispBuiltInPlusFunction, LispBuiltInQuoteFunction, LispBuiltInRestFunction, LispBuiltInSetFunction, root,
+  var LispBuiltInBeginFunction, LispBuiltInConsFunction, LispBuiltInDefineFunction, LispBuiltInDivideFunction, LispBuiltInEqFunction, LispBuiltInFirstFunction, LispBuiltInFunction, LispBuiltInIfFunction, LispBuiltInLambdaFunction, LispBuiltInLetFunction, LispBuiltInMinusFunction, LispBuiltInMultiplyFunction, LispBuiltInPlusFunction, LispBuiltInQuoteFunction, LispBuiltInRestFunction, LispBuiltInSetFunction, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
@@ -209,6 +209,40 @@
   })(LispBuiltInFunction);
 
   root.LispBuiltInSetFunction = LispBuiltInSetFunction;
+
+  LispBuiltInLetFunction = (function(_super) {
+
+    __extends(LispBuiltInLetFunction, _super);
+
+    LispBuiltInLetFunction.name = 'LispBuiltInLetFunction';
+
+    function LispBuiltInLetFunction() {
+      return LispBuiltInLetFunction.__super__.constructor.apply(this, arguments);
+    }
+
+    LispBuiltInLetFunction.prototype.action = function(args, env) {
+      var bodies, currentPair, evaluate, key, keyValueList, tempEnv, value;
+      keyValueList = args.first;
+      currentPair = keyValueList.first;
+      bodies = args.rest;
+      tempEnv = new LispEnvironment(env);
+      while (!keyValueList.isLispNil) {
+        key = currentPair.first;
+        value = currentPair.second();
+        evaluate = new LispList(new LispSymbol("define"), new LispList(key, new LispList(value, new LispNil())));
+        LispEvaluator["eval"](evaluate, tempEnv);
+        keyValueList = keyValueList.rest;
+        currentPair = keyValueList.first;
+      }
+      evaluate = new LispList(new LispSymbol("begin"), bodies);
+      return LispEvaluator["eval"](evaluate, tempEnv);
+    };
+
+    return LispBuiltInLetFunction;
+
+  })(LispBuiltInFunction);
+
+  root.LispBuiltInLetFunction = LispBuiltInLetFunction;
 
   LispBuiltInLambdaFunction = (function(_super) {
 
