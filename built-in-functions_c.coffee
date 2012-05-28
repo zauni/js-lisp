@@ -123,8 +123,8 @@ class LispBuiltInDefineFunction extends LispBuiltInFunction
         else if varNameOrFunc.isLispList
             funcName = varNameOrFunc.first
             unevaluatedArgs = varNameOrFunc.rest
-            body = args.second()
-            func = new LispUserDefinedFunction(unevaluatedArgs, body, env)
+            bodyList = args.rest
+            func = new LispUserDefinedFunction(unevaluatedArgs, bodyList, env)
             env.addBindingFor funcName, func
             return func
         new LispNil()
@@ -172,6 +172,25 @@ class LispBuiltInLambdaFunction extends LispBuiltInFunction
         new LispUserDefinedFunction(unevaluatedArgs, body, env)
         
 root.LispBuiltInLambdaFunction = LispBuiltInLambdaFunction
+
+##
+# begin
+##
+class LispBuiltInBeginFunction extends LispBuiltInFunction
+    
+    ##
+    # Aktion bei einem "begin" LispSymbol
+    # @param {LispObject} args Argumente der Aktion
+    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    ##
+    action: (args, env) ->
+        restList = args
+        until restList.isLispNil
+            result = LispEvaluator.eval restList.first, env
+            restList = restList.rest
+        result
+        
+root.LispBuiltInBeginFunction = LispBuiltInBeginFunction
 
 ##
 # if

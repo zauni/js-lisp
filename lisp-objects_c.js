@@ -228,17 +228,17 @@
 
     LispUserDefinedFunction.name = 'LispUserDefinedFunction';
 
-    function LispUserDefinedFunction(args, body, env) {
+    function LispUserDefinedFunction(args, bodyList, env) {
       this.args = args;
-      this.body = body;
       this.env = env;
+      this.bodyList = new LispList(new LispSymbol("begin"), bodyList);
     }
 
     LispUserDefinedFunction.prototype.isUserDefinedFunction = true;
 
     LispUserDefinedFunction.prototype.args = null;
 
-    LispUserDefinedFunction.prototype.body = null;
+    LispUserDefinedFunction.prototype.bodyList = null;
 
     LispUserDefinedFunction.prototype.env = null;
 

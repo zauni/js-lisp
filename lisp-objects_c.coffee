@@ -112,11 +112,13 @@ root.LispFalse = LispFalse
 # User Defined Function (lambda)
 ##
 class LispUserDefinedFunction extends LispAtom
-    constructor: (@args, @body, @env) ->
+    constructor: (@args, bodyList, @env) ->
+        # bodyList soll mit der Begin Funktion ausgewertet werden
+        @bodyList = new LispList(new LispSymbol("begin"), bodyList)
         
     isUserDefinedFunction: true
     args: null
-    body: null
+    bodyList: null
     env: null
     toString: ->
         "((User Defined Function))"

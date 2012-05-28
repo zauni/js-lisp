@@ -243,9 +243,6 @@ LispEvaluator =
     evalUserDefinedFunction: (func, unevaluatedArgs, env) ->
         formalArgs = func.args
         newEnv = new LispEnvironment(func.env)
-        nameOfFormalArg = undefined
-        unevaluatedArg = undefined
-        evaluatedArg = undefined
         unevaluatedArgs = unevaluatedArgs or new LispList()
         while formalArgs and not formalArgs.isLispNil
             nameOfFormalArg = formalArgs.first
@@ -254,7 +251,7 @@ LispEvaluator =
             newEnv.addBindingFor nameOfFormalArg, evaluatedArg
             formalArgs = formalArgs.rest
             unevaluatedArgs = unevaluatedArgs.rest
-        LispEvaluator.eval func.body, newEnv
+        LispEvaluator.eval func.bodyList, newEnv
 
     ##
     # Definiert alle im System vorhandenen "Built-In" Funktionen
@@ -269,6 +266,7 @@ LispEvaluator =
             "define": "Define"
             "set!": "Set"
             "lambda": "Lambda"
+            "begin": "Begin"
             "if": "If"
             "eq?": "Eq"
             "cons": "Cons"

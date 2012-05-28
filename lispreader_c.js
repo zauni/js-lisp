@@ -250,9 +250,6 @@
       var evaluatedArg, formalArgs, nameOfFormalArg, newEnv, unevaluatedArg;
       formalArgs = func.args;
       newEnv = new LispEnvironment(func.env);
-      nameOfFormalArg = void 0;
-      unevaluatedArg = void 0;
-      evaluatedArg = void 0;
       unevaluatedArgs = unevaluatedArgs || new LispList();
       while (formalArgs && !formalArgs.isLispNil) {
         nameOfFormalArg = formalArgs.first;
@@ -262,7 +259,7 @@
         formalArgs = formalArgs.rest;
         unevaluatedArgs = unevaluatedArgs.rest;
       }
-      return LispEvaluator["eval"](func.body, newEnv);
+      return LispEvaluator["eval"](func.bodyList, newEnv);
     },
     defineBuiltInFunctions: function() {
       var env;
@@ -275,6 +272,7 @@
         "define": "Define",
         "set!": "Set",
         "lambda": "Lambda",
+        "begin": "Begin",
         "if": "If",
         "eq?": "Eq",
         "cons": "Cons",

@@ -1,5 +1,5 @@
 (function() {
-  var LispBuiltInConsFunction, LispBuiltInDefineFunction, LispBuiltInDivideFunction, LispBuiltInEqFunction, LispBuiltInFirstFunction, LispBuiltInFunction, LispBuiltInIfFunction, LispBuiltInLambdaFunction, LispBuiltInMinusFunction, LispBuiltInMultiplyFunction, LispBuiltInPlusFunction, LispBuiltInQuoteFunction, LispBuiltInRestFunction, LispBuiltInSetFunction, root,
+  var LispBuiltInBeginFunction, LispBuiltInConsFunction, LispBuiltInDefineFunction, LispBuiltInDivideFunction, LispBuiltInEqFunction, LispBuiltInFirstFunction, LispBuiltInFunction, LispBuiltInIfFunction, LispBuiltInLambdaFunction, LispBuiltInMinusFunction, LispBuiltInMultiplyFunction, LispBuiltInPlusFunction, LispBuiltInQuoteFunction, LispBuiltInRestFunction, LispBuiltInSetFunction, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
@@ -152,7 +152,7 @@
     }
 
     LispBuiltInDefineFunction.prototype.action = function(args, env) {
-      var body, definedBinding, func, funcName, unevaluatedArgs, value, varNameOrFunc;
+      var bodyList, definedBinding, func, funcName, unevaluatedArgs, value, varNameOrFunc;
       varNameOrFunc = args.first;
       if (varNameOrFunc.isLispSymbol) {
         definedBinding = env.getBindingFor(varNameOrFunc);
@@ -165,8 +165,8 @@
       } else if (varNameOrFunc.isLispList) {
         funcName = varNameOrFunc.first;
         unevaluatedArgs = varNameOrFunc.rest;
-        body = args.second();
-        func = new LispUserDefinedFunction(unevaluatedArgs, body, env);
+        bodyList = args.rest;
+        func = new LispUserDefinedFunction(unevaluatedArgs, bodyList, env);
         env.addBindingFor(funcName, func);
         return func;
       }
@@ -232,6 +232,32 @@
   })(LispBuiltInFunction);
 
   root.LispBuiltInLambdaFunction = LispBuiltInLambdaFunction;
+
+  LispBuiltInBeginFunction = (function(_super) {
+
+    __extends(LispBuiltInBeginFunction, _super);
+
+    LispBuiltInBeginFunction.name = 'LispBuiltInBeginFunction';
+
+    function LispBuiltInBeginFunction() {
+      return LispBuiltInBeginFunction.__super__.constructor.apply(this, arguments);
+    }
+
+    LispBuiltInBeginFunction.prototype.action = function(args, env) {
+      var restList, result;
+      restList = args;
+      while (!restList.isLispNil) {
+        result = LispEvaluator["eval"](restList.first, env);
+        restList = restList.rest;
+      }
+      return result;
+    };
+
+    return LispBuiltInBeginFunction;
+
+  })(LispBuiltInFunction);
+
+  root.LispBuiltInBeginFunction = LispBuiltInBeginFunction;
 
   LispBuiltInIfFunction = (function(_super) {
 
