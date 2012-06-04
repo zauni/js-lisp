@@ -53,7 +53,7 @@
         if (console && console.error) {
           console.error(error);
         }
-        this.print(error, inputText);
+        this.print(error, inputText, true);
         this.inputField.val("");
         return;
       }
@@ -192,8 +192,11 @@
       return new LispList(element, this.readListRest());
     };
 
-    LispReader.prototype.print = function(lispObject, inputText) {
-      return $("#output").append("<li> &gt;&gt; " + inputText + "</li><li>" + (lispObject.toString()) + "</li>");
+    LispReader.prototype.print = function(lispObject, inputText, isError) {
+      if (isError == null) {
+        isError = false;
+      }
+      return $("#output").append("<li" + (isError ? " class='error'" : "") + "> &gt;&gt; " + inputText + "</li>                             <li" + (isError ? " class='error'" : "") + ">" + (lispObject.toString()) + "</li>");
     };
 
     return LispReader;
@@ -321,7 +324,8 @@
         "cons": "Cons",
         "first": "First",
         "rest": "Rest",
-        "quote": "Quote"
+        "quote": "Quote",
+        "error": "Error"
       }, function(className, symbol) {
         var key, klass;
         klass = "LispBuiltIn" + className + "Function";

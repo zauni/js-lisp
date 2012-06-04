@@ -406,3 +406,20 @@ class LispBuiltInQuoteFunction extends LispBuiltInFunction
         args.first
         
 root.LispBuiltInQuoteFunction = LispBuiltInQuoteFunction
+
+##
+# error
+# Gibt eine Fehlermeldung aus
+##
+class LispBuiltInErrorFunction extends LispBuiltInFunction
+
+    ##
+    # Aktion bei einem "error" LispSymbol
+    # @param {LispObject} args Argumente der Aktion
+    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    ##
+    action: (args, env) ->
+        msg = LispEvaluator.eval(args.first, env)
+        throw "#{msg.characters}"
+        
+root.LispBuiltInErrorFunction = LispBuiltInErrorFunction

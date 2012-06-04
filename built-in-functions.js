@@ -1,5 +1,5 @@
 (function() {
-  var LispBuiltInAndFunction, LispBuiltInBeginFunction, LispBuiltInConsFunction, LispBuiltInDefineFunction, LispBuiltInDivideFunction, LispBuiltInEqFunction, LispBuiltInFirstFunction, LispBuiltInFunction, LispBuiltInIfFunction, LispBuiltInLambdaFunction, LispBuiltInLetFunction, LispBuiltInMinusFunction, LispBuiltInMultiplyFunction, LispBuiltInNotFunction, LispBuiltInOrFunction, LispBuiltInPlusFunction, LispBuiltInQuoteFunction, LispBuiltInRestFunction, LispBuiltInSetFunction, root,
+  var LispBuiltInAndFunction, LispBuiltInBeginFunction, LispBuiltInConsFunction, LispBuiltInDefineFunction, LispBuiltInDivideFunction, LispBuiltInEqFunction, LispBuiltInErrorFunction, LispBuiltInFirstFunction, LispBuiltInFunction, LispBuiltInIfFunction, LispBuiltInLambdaFunction, LispBuiltInLetFunction, LispBuiltInMinusFunction, LispBuiltInMultiplyFunction, LispBuiltInNotFunction, LispBuiltInOrFunction, LispBuiltInPlusFunction, LispBuiltInQuoteFunction, LispBuiltInRestFunction, LispBuiltInSetFunction, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
@@ -527,5 +527,27 @@
   })(LispBuiltInFunction);
 
   root.LispBuiltInQuoteFunction = LispBuiltInQuoteFunction;
+
+  LispBuiltInErrorFunction = (function(_super) {
+
+    __extends(LispBuiltInErrorFunction, _super);
+
+    LispBuiltInErrorFunction.name = 'LispBuiltInErrorFunction';
+
+    function LispBuiltInErrorFunction() {
+      return LispBuiltInErrorFunction.__super__.constructor.apply(this, arguments);
+    }
+
+    LispBuiltInErrorFunction.prototype.action = function(args, env) {
+      var msg;
+      msg = LispEvaluator["eval"](args.first, env);
+      throw "" + msg.characters;
+    };
+
+    return LispBuiltInErrorFunction;
+
+  })(LispBuiltInFunction);
+
+  root.LispBuiltInErrorFunction = LispBuiltInErrorFunction;
 
 }).call(this);

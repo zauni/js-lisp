@@ -37,7 +37,7 @@ class LispReader
             erg = LispEvaluator.eval(@readObject())
         catch error
             console.error error if console and console.error
-            @print error, inputText
+            @print error, inputText, true
             @inputField.val ""
             return
         
@@ -190,8 +190,9 @@ class LispReader
     # @param {LispObject} lispObject
     # @param {String} inputText
     ##
-    print: (lispObject, inputText) ->
-        $("#output").append "<li> &gt;&gt; #{inputText}</li><li>#{lispObject.toString()}</li>"
+    print: (lispObject, inputText, isError=false) ->
+        $("#output").append "<li#{(if isError then " class='error'" else "")}> &gt;&gt; #{inputText}</li>
+                             <li#{(if isError then " class='error'" else "")}>#{lispObject.toString()}</li>"
 
 root.LispReader = LispReader
 
@@ -316,6 +317,7 @@ class LispEvaluator
             "first": "First"
             "rest": "Rest"
             "quote": "Quote"
+            "error": "Error"
         , (className, symbol) =>
             klass = "LispBuiltIn#{className}Function"
             key = new LispSymbol(symbol)
