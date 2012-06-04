@@ -6,8 +6,9 @@ class LispReader
         LispEvaluator.defineBuiltInFunctions()
         $(frm).on "submit", @read
         @inputField = $("#inputstream")
-        @activateAutocomplete()
+        #@activateAutocomplete()
         
+    commentRegex: /^;/
     symbolRegex: /^[^\(\)\.\s'"]/
     integerRegex: /^\d/
     listRegex: /^\(/
@@ -16,9 +17,9 @@ class LispReader
     seperators: /\s/
     reservedWords: /(nil|true|false)/
     reservedObjects:
-        nil: "LispNil"
-        true: "LispTrue"
-        false: "LispFalse"
+        "nil": "LispNil"
+        "true": "LispTrue"
+        "false": "LispFalse"
 
     input: null
     knownSymbols: {}
@@ -42,7 +43,7 @@ class LispReader
         
         @print erg, inputText
         @inputField.val ""
-        @updateAutocompleteData()
+        #@updateAutocompleteData()
 
     ##
     # Aktiviert das Autocomplete Verhalten beim input Feld
@@ -88,6 +89,15 @@ class LispReader
     ##
     readObject: ->
         @input.skip @seperators
+        if @commentRegex.test @input.peek()
+            # überspringe zeichen bis wir am ende oder an einem zeilenumbruch angelangt sind
+            current = @input.peek()
+            while not @input.atEnd() and not /\n/.test(current)
+                @input.next()
+                current = @input.peek()
+            #@input.next() until @input.atEnd() or /\n/.test(@input.peek())
+            @input.skip(@seperators)
+            
         if @integerRegex.test @input.peek()
             @readInteger()
         else if @stringRegex.test @input.peek()
@@ -118,6 +128,7 @@ class LispReader
         @input.next() # skip "
         character = ""
         character += @input.next() until @input.atEnd() or @stringRegex.test(@input.peek())
+        @input.next() # skip "
         new LispString(character)
 
     ##
@@ -148,10 +159,12 @@ class LispReader
     # @return {LispList}
     ##
     readList: ->
-        @input.next()
+        @input.next() # skip (
         @input.skip @seperators
         
-        return new LispNil()  if @input.peek() is ")"
+        if @input.peek() is ")"
+            @input.next() # skip )
+            return new LispNil()
         
         element = @readObject()
         
@@ -225,8 +238,8 @@ root.LispEnvironment = LispEnvironment
 ##
 # LispEvaluator um Lisp Objekte zu evaluieren
 ##
-LispEvaluator =
-    env: new LispEnvironment()
+class LispEvaluator
+    @env: new LispEnvironment()
     
     ##
     # Evaluiert ein gegebenes LispObject
@@ -234,7 +247,7 @@ LispEvaluator =
     # @param {LispEnvironment} env Das Environment, in dem evaluiert wird
     # @return {Mixed}
     ##
-    eval: (lispObj, env) ->
+    @eval: (lispObj, env) ->
         env = env or @env
         if lispObj.isLispAtom
             return env.getBindingFor(lispObj)  if lispObj.isLispSymbol
@@ -257,23 +270,33 @@ LispEvaluator =
     # @param {LispEnvironment} env
     # @return {Mixed}
     ##
-    evalUserDefinedFunction: (func, unevaluatedArgs, env) ->
+    @evalUserDefinedFunction: (func, unevaluatedArgs, env) ->
         formalArgs = func.args
         newEnv = new LispEnvironment(func.env)
         unevaluatedArgs = unevaluatedArgs or new LispList()
-        while formalArgs and not formalArgs.isLispNil
+       
+        until formalArgs.isLispNil
             nameOfFormalArg = formalArgs.first
             unevaluatedArg = unevaluatedArgs.first
-            evaluatedArg = LispEvaluator.eval(unevaluatedArg, env)
+            evaluatedArg = @eval unevaluatedArg, env
             newEnv.addBindingFor nameOfFormalArg, evaluatedArg
+            
             formalArgs = formalArgs.rest
             unevaluatedArgs = unevaluatedArgs.rest
-        LispEvaluator.eval func.bodyList, newEnv
+
+        bodyList = func.bodyList
+        lastResult = new LispNil()
+
+        until bodyList.isLispNil
+            lastResult = @eval bodyList.first, newEnv
+            bodyList = bodyList.rest
+
+        lastResult
 
     ##
     # Definiert alle im System vorhandenen "Built-In" Funktionen
     ##
-    defineBuiltInFunctions: ->
+    @defineBuiltInFunctions: ->
         _.each
             "+": "Plus"
             "-": "Minus"

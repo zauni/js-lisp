@@ -12,8 +12,9 @@
       LispEvaluator.defineBuiltInFunctions();
       $(frm).on("submit", this.read);
       this.inputField = $("#inputstream");
-      this.activateAutocomplete();
     }
+
+    LispReader.prototype.commentRegex = /^;/;
 
     LispReader.prototype.symbolRegex = /^[^\(\)\.\s'"]/;
 
@@ -30,7 +31,7 @@
     LispReader.prototype.reservedWords = /(nil|true|false)/;
 
     LispReader.prototype.reservedObjects = {
-      nil: "LispNil",
+      "nil": "LispNil",
       "true": "LispTrue",
       "false": "LispFalse"
     };
@@ -57,8 +58,7 @@
         return;
       }
       this.print(erg, inputText);
-      this.inputField.val("");
-      return this.updateAutocompleteData();
+      return this.inputField.val("");
     };
 
     LispReader.prototype.activateAutocomplete = function() {
@@ -102,7 +102,16 @@
     };
 
     LispReader.prototype.readObject = function() {
+      var current;
       this.input.skip(this.seperators);
+      if (this.commentRegex.test(this.input.peek())) {
+        current = this.input.peek();
+        while (!this.input.atEnd() && !/\n/.test(current)) {
+          this.input.next();
+          current = this.input.peek();
+        }
+        this.input.skip(this.seperators);
+      }
       if (this.integerRegex.test(this.input.peek())) {
         return this.readInteger();
       } else if (this.stringRegex.test(this.input.peek())) {
@@ -134,6 +143,7 @@
       while (!(this.input.atEnd() || this.stringRegex.test(this.input.peek()))) {
         character += this.input.next();
       }
+      this.input.next();
       return new LispString(character);
     };
 
@@ -162,6 +172,7 @@
       this.input.next();
       this.input.skip(this.seperators);
       if (this.input.peek() === ")") {
+        this.input.next();
         return new LispNil();
       }
       element = this.readObject();
@@ -240,9 +251,15 @@
 
   root.LispEnvironment = LispEnvironment;
 
-  LispEvaluator = {
-    env: new LispEnvironment(),
-    "eval": function(lispObj, env) {
+  LispEvaluator = (function() {
+
+    LispEvaluator.name = 'LispEvaluator';
+
+    function LispEvaluator() {}
+
+    LispEvaluator.env = new LispEnvironment();
+
+    LispEvaluator["eval"] = function(lispObj, env) {
       var evaluatedFunc, unevaluatedArgs, unevaluatedFunc;
       env = env || this.env;
       if (lispObj.isLispAtom) {
@@ -260,23 +277,31 @@
         return this.evalUserDefinedFunction(evaluatedFunc, unevaluatedArgs, env);
       }
       return new LispNil();
-    },
-    evalUserDefinedFunction: function(func, unevaluatedArgs, env) {
-      var evaluatedArg, formalArgs, nameOfFormalArg, newEnv, unevaluatedArg;
+    };
+
+    LispEvaluator.evalUserDefinedFunction = function(func, unevaluatedArgs, env) {
+      var bodyList, evaluatedArg, formalArgs, lastResult, nameOfFormalArg, newEnv, unevaluatedArg;
       formalArgs = func.args;
       newEnv = new LispEnvironment(func.env);
       unevaluatedArgs = unevaluatedArgs || new LispList();
-      while (formalArgs && !formalArgs.isLispNil) {
+      while (!formalArgs.isLispNil) {
         nameOfFormalArg = formalArgs.first;
         unevaluatedArg = unevaluatedArgs.first;
-        evaluatedArg = LispEvaluator["eval"](unevaluatedArg, env);
+        evaluatedArg = this["eval"](unevaluatedArg, env);
         newEnv.addBindingFor(nameOfFormalArg, evaluatedArg);
         formalArgs = formalArgs.rest;
         unevaluatedArgs = unevaluatedArgs.rest;
       }
-      return LispEvaluator["eval"](func.bodyList, newEnv);
-    },
-    defineBuiltInFunctions: function() {
+      bodyList = func.bodyList;
+      lastResult = new LispNil();
+      while (!bodyList.isLispNil) {
+        lastResult = this["eval"](bodyList.first, newEnv);
+        bodyList = bodyList.rest;
+      }
+      return lastResult;
+    };
+
+    LispEvaluator.defineBuiltInFunctions = function() {
       var _this = this;
       return _.each({
         "+": "Plus",
@@ -303,8 +328,11 @@
         key = new LispSymbol(symbol);
         return _this.env.addBindingFor(key, new window[klass]());
       });
-    }
-  };
+    };
+
+    return LispEvaluator;
+
+  })();
 
   root.LispEvaluator = LispEvaluator;
 

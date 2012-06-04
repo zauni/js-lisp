@@ -165,7 +165,11 @@
     };
 
     LispList.prototype.toString = function() {
-      return "(" + (this.first.toString()) + " " + (this.rest.toString()) + ")";
+      if (this.first.isLispNil && this.rest.isLispNil) {
+        return "()";
+      } else {
+        return "(" + (this.first.toString()) + " " + (this.rest.toString()) + ")";
+      }
     };
 
     return LispList;

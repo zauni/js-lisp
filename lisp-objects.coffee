@@ -83,7 +83,10 @@ class LispList extends LispObject
         (if @rest and @rest.rest and @rest.rest.isLispList then @rest.rest.first else new LispNil())
 
     toString: ->
-        "(#{@first.toString()} #{@rest.toString()})"
+        if @first.isLispNil and @rest.isLispNil
+            "()" 
+        else
+            "(#{@first.toString()} #{@rest.toString()})"
 
 root.LispList = LispList
 

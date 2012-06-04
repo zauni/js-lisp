@@ -198,8 +198,8 @@ class LispBuiltInLambdaFunction extends LispBuiltInFunction
     ##
     action: (args, env) ->
         unevaluatedArgs = args.first
-        body = args.rest.first
-        new LispUserDefinedFunction(unevaluatedArgs, body, env)
+        bodyList = args.rest
+        new LispUserDefinedFunction(unevaluatedArgs, bodyList, env)
         
 root.LispBuiltInLambdaFunction = LispBuiltInLambdaFunction
 
@@ -214,6 +214,7 @@ class LispBuiltInBeginFunction extends LispBuiltInFunction
     # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
     ##
     action: (args, env) ->
+        result = new LispNil()
         restList = args
         until restList.isLispNil
             result = LispEvaluator.eval restList.first, env

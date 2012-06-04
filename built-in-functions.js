@@ -255,10 +255,10 @@
     }
 
     LispBuiltInLambdaFunction.prototype.action = function(args, env) {
-      var body, unevaluatedArgs;
+      var bodyList, unevaluatedArgs;
       unevaluatedArgs = args.first;
-      body = args.rest.first;
-      return new LispUserDefinedFunction(unevaluatedArgs, body, env);
+      bodyList = args.rest;
+      return new LispUserDefinedFunction(unevaluatedArgs, bodyList, env);
     };
 
     return LispBuiltInLambdaFunction;
@@ -279,6 +279,7 @@
 
     LispBuiltInBeginFunction.prototype.action = function(args, env) {
       var restList, result;
+      result = new LispNil();
       restList = args;
       while (!restList.isLispNil) {
         result = LispEvaluator["eval"](restList.first, env);
