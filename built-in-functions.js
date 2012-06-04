@@ -1,5 +1,5 @@
 (function() {
-  var LispBuiltInAndFunction, LispBuiltInBeginFunction, LispBuiltInConsFunction, LispBuiltInDefineFunction, LispBuiltInDivideFunction, LispBuiltInEqFunction, LispBuiltInErrorFunction, LispBuiltInFirstFunction, LispBuiltInFunction, LispBuiltInIfFunction, LispBuiltInLambdaFunction, LispBuiltInLetFunction, LispBuiltInMinusFunction, LispBuiltInMultiplyFunction, LispBuiltInNotFunction, LispBuiltInOrFunction, LispBuiltInPlusFunction, LispBuiltInQuoteFunction, LispBuiltInRestFunction, LispBuiltInSetFunction, root,
+  var LispBuiltInFunction, action, builtIns, className, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
@@ -29,17 +29,8 @@
 
   root.LispBuiltInFunction = LispBuiltInFunction;
 
-  LispBuiltInPlusFunction = (function(_super) {
-
-    __extends(LispBuiltInPlusFunction, _super);
-
-    LispBuiltInPlusFunction.name = 'LispBuiltInPlusFunction';
-
-    function LispBuiltInPlusFunction() {
-      return LispBuiltInPlusFunction.__super__.constructor.apply(this, arguments);
-    }
-
-    LispBuiltInPlusFunction.prototype.action = function(args, env) {
+  builtIns = {
+    "Plus": function(args, env) {
       var arg;
       arg = LispEvaluator["eval"](args.first, env);
       if (arg && !args.rest.isLispNil) {
@@ -49,25 +40,8 @@
       } else {
         return new LispInteger(0);
       }
-    };
-
-    return LispBuiltInPlusFunction;
-
-  })(LispBuiltInFunction);
-
-  root.LispBuiltInPlusFunction = LispBuiltInPlusFunction;
-
-  LispBuiltInMinusFunction = (function(_super) {
-
-    __extends(LispBuiltInMinusFunction, _super);
-
-    LispBuiltInMinusFunction.name = 'LispBuiltInMinusFunction';
-
-    function LispBuiltInMinusFunction() {
-      return LispBuiltInMinusFunction.__super__.constructor.apply(this, arguments);
-    }
-
-    LispBuiltInMinusFunction.prototype.action = function(args, env) {
+    },
+    "Minus": function(args, env) {
       var arg;
       arg = LispEvaluator["eval"](args.first, env);
       if (arg && !args.rest.isLispNil) {
@@ -77,25 +51,8 @@
       } else {
         return new LispInteger(0);
       }
-    };
-
-    return LispBuiltInMinusFunction;
-
-  })(LispBuiltInFunction);
-
-  root.LispBuiltInMinusFunction = LispBuiltInMinusFunction;
-
-  LispBuiltInMultiplyFunction = (function(_super) {
-
-    __extends(LispBuiltInMultiplyFunction, _super);
-
-    LispBuiltInMultiplyFunction.name = 'LispBuiltInMultiplyFunction';
-
-    function LispBuiltInMultiplyFunction() {
-      return LispBuiltInMultiplyFunction.__super__.constructor.apply(this, arguments);
-    }
-
-    LispBuiltInMultiplyFunction.prototype.action = function(args, env) {
+    },
+    "Multiply": function(args, env) {
       var arg;
       arg = LispEvaluator["eval"](args.first, env);
       if (arg && !args.rest.isLispNil) {
@@ -105,25 +62,8 @@
       } else {
         return new LispInteger(0);
       }
-    };
-
-    return LispBuiltInMultiplyFunction;
-
-  })(LispBuiltInFunction);
-
-  root.LispBuiltInMultiplyFunction = LispBuiltInMultiplyFunction;
-
-  LispBuiltInDivideFunction = (function(_super) {
-
-    __extends(LispBuiltInDivideFunction, _super);
-
-    LispBuiltInDivideFunction.name = 'LispBuiltInDivideFunction';
-
-    function LispBuiltInDivideFunction() {
-      return LispBuiltInDivideFunction.__super__.constructor.apply(this, arguments);
-    }
-
-    LispBuiltInDivideFunction.prototype.action = function(args, env) {
+    },
+    "Divide": function(args, env) {
       var arg;
       arg = LispEvaluator["eval"](args.first, env);
       if (arg && !args.rest.isLispNil) {
@@ -133,25 +73,8 @@
       } else {
         return new LispInteger(0);
       }
-    };
-
-    return LispBuiltInDivideFunction;
-
-  })(LispBuiltInFunction);
-
-  root.LispBuiltInDivideFunction = LispBuiltInDivideFunction;
-
-  LispBuiltInDefineFunction = (function(_super) {
-
-    __extends(LispBuiltInDefineFunction, _super);
-
-    LispBuiltInDefineFunction.name = 'LispBuiltInDefineFunction';
-
-    function LispBuiltInDefineFunction() {
-      return LispBuiltInDefineFunction.__super__.constructor.apply(this, arguments);
-    }
-
-    LispBuiltInDefineFunction.prototype.action = function(args, env) {
+    },
+    "Define": function(args, env) {
       var bodyList, definedBinding, func, funcName, unevaluatedArgs, value, varNameOrFunc;
       varNameOrFunc = args.first;
       if (varNameOrFunc.isLispSymbol) {
@@ -171,25 +94,8 @@
         return func;
       }
       return new LispNil();
-    };
-
-    return LispBuiltInDefineFunction;
-
-  })(LispBuiltInFunction);
-
-  root.LispBuiltInDefineFunction = LispBuiltInDefineFunction;
-
-  LispBuiltInSetFunction = (function(_super) {
-
-    __extends(LispBuiltInSetFunction, _super);
-
-    LispBuiltInSetFunction.name = 'LispBuiltInSetFunction';
-
-    function LispBuiltInSetFunction() {
-      return LispBuiltInSetFunction.__super__.constructor.apply(this, arguments);
-    }
-
-    LispBuiltInSetFunction.prototype.action = function(args, env) {
+    },
+    "Set": function(args, env) {
       var definedBinding, value, varName;
       varName = args.first;
       value = LispEvaluator["eval"](args.rest.first, env);
@@ -202,25 +108,8 @@
         return value;
       }
       return new LispNil();
-    };
-
-    return LispBuiltInSetFunction;
-
-  })(LispBuiltInFunction);
-
-  root.LispBuiltInSetFunction = LispBuiltInSetFunction;
-
-  LispBuiltInLetFunction = (function(_super) {
-
-    __extends(LispBuiltInLetFunction, _super);
-
-    LispBuiltInLetFunction.name = 'LispBuiltInLetFunction';
-
-    function LispBuiltInLetFunction() {
-      return LispBuiltInLetFunction.__super__.constructor.apply(this, arguments);
-    }
-
-    LispBuiltInLetFunction.prototype.action = function(args, env) {
+    },
+    "Let": function(args, env) {
       var bodies, currentPair, evaluate, key, keyValueList, tempEnv, value;
       keyValueList = args.first;
       currentPair = keyValueList.first;
@@ -236,48 +125,14 @@
       }
       evaluate = new LispList(new LispSymbol("begin"), bodies);
       return LispEvaluator["eval"](evaluate, tempEnv);
-    };
-
-    return LispBuiltInLetFunction;
-
-  })(LispBuiltInFunction);
-
-  root.LispBuiltInLetFunction = LispBuiltInLetFunction;
-
-  LispBuiltInLambdaFunction = (function(_super) {
-
-    __extends(LispBuiltInLambdaFunction, _super);
-
-    LispBuiltInLambdaFunction.name = 'LispBuiltInLambdaFunction';
-
-    function LispBuiltInLambdaFunction() {
-      return LispBuiltInLambdaFunction.__super__.constructor.apply(this, arguments);
-    }
-
-    LispBuiltInLambdaFunction.prototype.action = function(args, env) {
+    },
+    "Lambda": function(args, env) {
       var bodyList, unevaluatedArgs;
       unevaluatedArgs = args.first;
       bodyList = args.rest;
       return new LispUserDefinedFunction(unevaluatedArgs, bodyList, env);
-    };
-
-    return LispBuiltInLambdaFunction;
-
-  })(LispBuiltInFunction);
-
-  root.LispBuiltInLambdaFunction = LispBuiltInLambdaFunction;
-
-  LispBuiltInBeginFunction = (function(_super) {
-
-    __extends(LispBuiltInBeginFunction, _super);
-
-    LispBuiltInBeginFunction.name = 'LispBuiltInBeginFunction';
-
-    function LispBuiltInBeginFunction() {
-      return LispBuiltInBeginFunction.__super__.constructor.apply(this, arguments);
-    }
-
-    LispBuiltInBeginFunction.prototype.action = function(args, env) {
+    },
+    "Begin": function(args, env) {
       var restList, result;
       result = new LispNil();
       restList = args;
@@ -286,25 +141,8 @@
         restList = restList.rest;
       }
       return result;
-    };
-
-    return LispBuiltInBeginFunction;
-
-  })(LispBuiltInFunction);
-
-  root.LispBuiltInBeginFunction = LispBuiltInBeginFunction;
-
-  LispBuiltInIfFunction = (function(_super) {
-
-    __extends(LispBuiltInIfFunction, _super);
-
-    LispBuiltInIfFunction.name = 'LispBuiltInIfFunction';
-
-    function LispBuiltInIfFunction() {
-      return LispBuiltInIfFunction.__super__.constructor.apply(this, arguments);
-    }
-
-    LispBuiltInIfFunction.prototype.action = function(args, env) {
+    },
+    "If": function(args, env) {
       var cond, unevaluatedCond, unevaluatedElseBody, unevaluatedIfBody;
       unevaluatedCond = args.first;
       unevaluatedIfBody = args.second();
@@ -315,25 +153,8 @@
       } else {
         return LispEvaluator["eval"](unevaluatedElseBody, env);
       }
-    };
-
-    return LispBuiltInIfFunction;
-
-  })(LispBuiltInFunction);
-
-  root.LispBuiltInIfFunction = LispBuiltInIfFunction;
-
-  LispBuiltInEqFunction = (function(_super) {
-
-    __extends(LispBuiltInEqFunction, _super);
-
-    LispBuiltInEqFunction.name = 'LispBuiltInEqFunction';
-
-    function LispBuiltInEqFunction() {
-      return LispBuiltInEqFunction.__super__.constructor.apply(this, arguments);
-    }
-
-    LispBuiltInEqFunction.prototype.action = function(args, env) {
+    },
+    "Eq": function(args, env) {
       var A, B, comp, unevaluatedA, unevaluatedB;
       unevaluatedA = args.first;
       unevaluatedB = args.second();
@@ -351,25 +172,8 @@
         }
       };
       return (comp(A, B) ? new LispTrue() : new LispFalse());
-    };
-
-    return LispBuiltInEqFunction;
-
-  })(LispBuiltInFunction);
-
-  root.LispBuiltInEqFunction = LispBuiltInEqFunction;
-
-  LispBuiltInAndFunction = (function(_super) {
-
-    __extends(LispBuiltInAndFunction, _super);
-
-    LispBuiltInAndFunction.name = 'LispBuiltInAndFunction';
-
-    function LispBuiltInAndFunction() {
-      return LispBuiltInAndFunction.__super__.constructor.apply(this, arguments);
-    }
-
-    LispBuiltInAndFunction.prototype.action = function(args, env) {
+    },
+    "And": function(args, env) {
       var condA, condB, unevaluatedCondA, unevaluatedCondB;
       unevaluatedCondA = args.first;
       unevaluatedCondB = args.second();
@@ -379,25 +183,8 @@
         return new LispTrue();
       }
       return new LispFalse();
-    };
-
-    return LispBuiltInAndFunction;
-
-  })(LispBuiltInFunction);
-
-  root.LispBuiltInAndFunction = LispBuiltInAndFunction;
-
-  LispBuiltInOrFunction = (function(_super) {
-
-    __extends(LispBuiltInOrFunction, _super);
-
-    LispBuiltInOrFunction.name = 'LispBuiltInOrFunction';
-
-    function LispBuiltInOrFunction() {
-      return LispBuiltInOrFunction.__super__.constructor.apply(this, arguments);
-    }
-
-    LispBuiltInOrFunction.prototype.action = function(args, env) {
+    },
+    "Or": function(args, env) {
       var condA, condB, unevaluatedCondA, unevaluatedCondB;
       unevaluatedCondA = args.first;
       unevaluatedCondB = args.second();
@@ -407,25 +194,8 @@
         return new LispTrue();
       }
       return new LispFalse();
-    };
-
-    return LispBuiltInOrFunction;
-
-  })(LispBuiltInFunction);
-
-  root.LispBuiltInOrFunction = LispBuiltInOrFunction;
-
-  LispBuiltInNotFunction = (function(_super) {
-
-    __extends(LispBuiltInNotFunction, _super);
-
-    LispBuiltInNotFunction.name = 'LispBuiltInNotFunction';
-
-    function LispBuiltInNotFunction() {
-      return LispBuiltInNotFunction.__super__.constructor.apply(this, arguments);
-    }
-
-    LispBuiltInNotFunction.prototype.action = function(args, env) {
+    },
+    "Not": function(args, env) {
       var cond, unevaluatedCond;
       unevaluatedCond = args.first;
       cond = LispEvaluator["eval"](unevaluatedCond, env);
@@ -433,121 +203,48 @@
         return new LispFalse();
       }
       return new LispTrue();
-    };
-
-    return LispBuiltInNotFunction;
-
-  })(LispBuiltInFunction);
-
-  root.LispBuiltInNotFunction = LispBuiltInNotFunction;
-
-  LispBuiltInConsFunction = (function(_super) {
-
-    __extends(LispBuiltInConsFunction, _super);
-
-    LispBuiltInConsFunction.name = 'LispBuiltInConsFunction';
-
-    function LispBuiltInConsFunction() {
-      return LispBuiltInConsFunction.__super__.constructor.apply(this, arguments);
-    }
-
-    LispBuiltInConsFunction.prototype.action = function(args, env) {
+    },
+    "Cons": function(args, env) {
       var unevaluatedFirst, unevaluatedSecond;
       unevaluatedFirst = args.first;
       unevaluatedSecond = args.second();
       return new LispList(LispEvaluator["eval"](unevaluatedFirst, env), LispEvaluator["eval"](unevaluatedSecond, env));
-    };
-
-    return LispBuiltInConsFunction;
-
-  })(LispBuiltInFunction);
-
-  root.LispBuiltInConsFunction = LispBuiltInConsFunction;
-
-  LispBuiltInFirstFunction = (function(_super) {
-
-    __extends(LispBuiltInFirstFunction, _super);
-
-    LispBuiltInFirstFunction.name = 'LispBuiltInFirstFunction';
-
-    function LispBuiltInFirstFunction() {
-      return LispBuiltInFirstFunction.__super__.constructor.apply(this, arguments);
-    }
-
-    LispBuiltInFirstFunction.prototype.action = function(args, env) {
+    },
+    "First": function(args, env) {
       var list;
       list = LispEvaluator["eval"](args.first, env);
       return list.first;
-    };
-
-    return LispBuiltInFirstFunction;
-
-  })(LispBuiltInFunction);
-
-  root.LispBuiltInFirstFunction = LispBuiltInFirstFunction;
-
-  LispBuiltInRestFunction = (function(_super) {
-
-    __extends(LispBuiltInRestFunction, _super);
-
-    LispBuiltInRestFunction.name = 'LispBuiltInRestFunction';
-
-    function LispBuiltInRestFunction() {
-      return LispBuiltInRestFunction.__super__.constructor.apply(this, arguments);
-    }
-
-    LispBuiltInRestFunction.prototype.action = function(args, env) {
+    },
+    "Rest": function(args, env) {
       var list;
       list = LispEvaluator["eval"](args.first, env);
       return list.rest;
-    };
-
-    return LispBuiltInRestFunction;
-
-  })(LispBuiltInFunction);
-
-  root.LispBuiltInRestFunction = LispBuiltInRestFunction;
-
-  LispBuiltInQuoteFunction = (function(_super) {
-
-    __extends(LispBuiltInQuoteFunction, _super);
-
-    LispBuiltInQuoteFunction.name = 'LispBuiltInQuoteFunction';
-
-    function LispBuiltInQuoteFunction() {
-      return LispBuiltInQuoteFunction.__super__.constructor.apply(this, arguments);
-    }
-
-    LispBuiltInQuoteFunction.prototype.action = function(args, env) {
+    },
+    "Quote": function(args, env) {
       return args.first;
-    };
-
-    return LispBuiltInQuoteFunction;
-
-  })(LispBuiltInFunction);
-
-  root.LispBuiltInQuoteFunction = LispBuiltInQuoteFunction;
-
-  LispBuiltInErrorFunction = (function(_super) {
-
-    __extends(LispBuiltInErrorFunction, _super);
-
-    LispBuiltInErrorFunction.name = 'LispBuiltInErrorFunction';
-
-    function LispBuiltInErrorFunction() {
-      return LispBuiltInErrorFunction.__super__.constructor.apply(this, arguments);
-    }
-
-    LispBuiltInErrorFunction.prototype.action = function(args, env) {
+    },
+    "Error": function(args, env) {
       var msg;
       msg = LispEvaluator["eval"](args.first, env);
       throw "" + msg.characters;
-    };
+    }
+  };
 
-    return LispBuiltInErrorFunction;
+  for (className in builtIns) {
+    action = builtIns[className];
+    root["LispBuiltIn" + className + "Function"] = (function(_super) {
 
-  })(LispBuiltInFunction);
+      __extends(_Class, _super);
 
-  root.LispBuiltInErrorFunction = LispBuiltInErrorFunction;
+      function _Class() {
+        return _Class.__super__.constructor.apply(this, arguments);
+      }
+
+      _Class.prototype.action = action;
+
+      return _Class;
+
+    })(LispBuiltInFunction);
+  }
 
 }).call(this);

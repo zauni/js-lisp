@@ -13,17 +13,11 @@ class LispBuiltInFunction extends LispAtom
         
 root.LispBuiltInFunction = LispBuiltInFunction
 
-##
-# +
-##
-class LispBuiltInPlusFunction extends LispBuiltInFunction
-
+builtIns =
     ##
-    # Aktion bei einem "+" LispSymbol
-    # @param {LispObject} args Argumente der Aktion
-    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    # +
     ##
-    action: (args, env) ->
+    "Plus": (args, env) ->
         arg = LispEvaluator.eval(args.first, env)
         if arg and not args.rest.isLispNil
             new LispInteger(arg + (@action(args.rest, env)).value)
@@ -31,20 +25,11 @@ class LispBuiltInPlusFunction extends LispBuiltInFunction
             new LispInteger(arg)
         else
             new LispInteger(0)
-        
-root.LispBuiltInPlusFunction = LispBuiltInPlusFunction
-
-##
-# -
-##
-class LispBuiltInMinusFunction extends LispBuiltInFunction
-
+    
     ##
-    # Aktion bei einem "-" LispSymbol
-    # @param {LispObject} args Argumente der Aktion
-    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    # -
     ##
-    action: (args, env) ->
+    "Minus": (args, env) ->
         arg = LispEvaluator.eval(args.first, env)
         if arg and not args.rest.isLispNil
             new LispInteger(arg - (@action(args.rest, env)).value)
@@ -52,20 +37,11 @@ class LispBuiltInMinusFunction extends LispBuiltInFunction
             new LispInteger(arg)
         else
             new LispInteger(0)
-        
-root.LispBuiltInMinusFunction = LispBuiltInMinusFunction
-
-##
-# *
-##
-class LispBuiltInMultiplyFunction extends LispBuiltInFunction
-
+    
     ##
-    # Aktion bei einem "*" LispSymbol
-    # @param {LispObject} args Argumente der Aktion
-    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    # *
     ##
-    action: (args, env) ->
+    "Multiply": (args, env) ->
         arg = LispEvaluator.eval(args.first, env)
         if arg and not args.rest.isLispNil
             new LispInteger(arg * (@action(args.rest, env)).value)
@@ -73,20 +49,11 @@ class LispBuiltInMultiplyFunction extends LispBuiltInFunction
             new LispInteger(arg)
         else
             new LispInteger(0)
-        
-root.LispBuiltInMultiplyFunction = LispBuiltInMultiplyFunction
-
-##
-# /
-##
-class LispBuiltInDivideFunction extends LispBuiltInFunction
-
+    
     ##
-    # Aktion bei einem "/" LispSymbol
-    # @param {LispObject} args Argumente der Aktion
-    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    # /
     ##
-    action: (args, env) ->
+    "Divide": (args, env) ->
         arg = LispEvaluator.eval(args.first, env)
         if arg and not args.rest.isLispNil
             new LispInteger(arg / (@action(args.rest, env)).value)
@@ -94,20 +61,11 @@ class LispBuiltInDivideFunction extends LispBuiltInFunction
             new LispInteger(arg)
         else
             new LispInteger(0)
-        
-root.LispBuiltInDivideFunction = LispBuiltInDivideFunction
-
-##
-# define
-##
-class LispBuiltInDefineFunction extends LispBuiltInFunction
-
+    
     ##
-    # Aktion bei einem "define" LispSymbol
-    # @param {LispObject} args Argumente der Aktion
-    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    # define
     ##
-    action: (args, env) ->
+    "Define": (args, env) ->
         varNameOrFunc = args.first
 
         if varNameOrFunc.isLispSymbol
@@ -128,20 +86,11 @@ class LispBuiltInDefineFunction extends LispBuiltInFunction
             env.addBindingFor funcName, func
             return func
         new LispNil()
-        
-root.LispBuiltInDefineFunction = LispBuiltInDefineFunction
-
-##
-# set!
-##
-class LispBuiltInSetFunction extends LispBuiltInFunction
-
+    
     ##
-    # Aktion bei einem "set!" LispSymbol
-    # @param {LispObject} args Argumente der Aktion
-    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    # set!
     ##
-    action: (args, env) ->
+    "Set": (args, env) ->
         varName = args.first
         value = LispEvaluator.eval(args.rest.first, env)
 
@@ -153,20 +102,11 @@ class LispBuiltInSetFunction extends LispBuiltInFunction
             return value
 
         new LispNil()
-        
-root.LispBuiltInSetFunction = LispBuiltInSetFunction
-
-##
-# let
-##
-class LispBuiltInLetFunction extends LispBuiltInFunction
-
+    
     ##
-    # Aktion bei einem "let" LispSymbol
-    # @param {LispObject} args Argumente der Aktion
-    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    # let
     ##
-    action: (args, env) ->
+    "Let": (args, env) ->
         keyValueList = args.first
         currentPair = keyValueList.first
         bodies = args.rest
@@ -183,57 +123,30 @@ class LispBuiltInLetFunction extends LispBuiltInFunction
             
         evaluate = new LispList(new LispSymbol("begin"), bodies);
         LispEvaluator.eval(evaluate, tempEnv)
-        
-root.LispBuiltInLetFunction = LispBuiltInLetFunction
-
-##
-# lambda
-##
-class LispBuiltInLambdaFunction extends LispBuiltInFunction
     
     ##
-    # Aktion bei einem "lambda" LispSymbol
-    # @param {LispObject} args Argumente der Aktion
-    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    # lambda
     ##
-    action: (args, env) ->
+    "Lambda": (args, env) ->
         unevaluatedArgs = args.first
         bodyList = args.rest
         new LispUserDefinedFunction(unevaluatedArgs, bodyList, env)
-        
-root.LispBuiltInLambdaFunction = LispBuiltInLambdaFunction
-
-##
-# begin
-##
-class LispBuiltInBeginFunction extends LispBuiltInFunction
     
     ##
-    # Aktion bei einem "begin" LispSymbol
-    # @param {LispObject} args Argumente der Aktion
-    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    # begin
     ##
-    action: (args, env) ->
+    "Begin": (args, env) ->
         result = new LispNil()
         restList = args
         until restList.isLispNil
             result = LispEvaluator.eval restList.first, env
             restList = restList.rest
         result
-        
-root.LispBuiltInBeginFunction = LispBuiltInBeginFunction
-
-##
-# if
-##
-class LispBuiltInIfFunction extends LispBuiltInFunction
-
+    
     ##
-    # Aktion bei einem "if" LispSymbol
-    # @param {LispObject} args Argumente der Aktion
-    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    # if
     ##
-    action: (args, env) ->
+    "If": (args, env) ->
         unevaluatedCond = args.first
         unevaluatedIfBody = args.second()
         unevaluatedElseBody = args.third()
@@ -242,20 +155,11 @@ class LispBuiltInIfFunction extends LispBuiltInFunction
             LispEvaluator.eval(unevaluatedIfBody, env)
         else 
             LispEvaluator.eval(unevaluatedElseBody, env)
-        
-root.LispBuiltInIfFunction = LispBuiltInIfFunction
-
-##
-# eq?
-##
-class LispBuiltInEqFunction extends LispBuiltInFunction
-
+    
     ##
-    # Aktion bei einem "eq?" LispSymbol
-    # @param {LispObject} args Argumente der Aktion
-    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    # eq?
     ##
-    action: (args, env) ->
+    "Eq": (args, env) ->
         unevaluatedA = args.first
         unevaluatedB = args.second()
         A = LispEvaluator.eval(unevaluatedA, env)
@@ -272,20 +176,11 @@ class LispBuiltInEqFunction extends LispBuiltInFunction
                 a is b
 
         return (if comp A, B then new LispTrue() else new LispFalse())
-        
-root.LispBuiltInEqFunction = LispBuiltInEqFunction
-
-##
-# and
-##
-class LispBuiltInAndFunction extends LispBuiltInFunction
-
+    
     ##
-    # Aktion bei einem "and" LispSymbol
-    # @param {LispObject} args Argumente der Aktion
-    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    # and
     ##
-    action: (args, env) ->
+    "And": (args, env) ->
         unevaluatedCondA = args.first
         unevaluatedCondB = args.second()
         
@@ -295,20 +190,11 @@ class LispBuiltInAndFunction extends LispBuiltInFunction
         if condA?.isLispTrue and condB?.isLispTrue
             return new LispTrue()
         new LispFalse()
-        
-root.LispBuiltInAndFunction = LispBuiltInAndFunction
-
-##
-# or
-##
-class LispBuiltInOrFunction extends LispBuiltInFunction
-
+    
     ##
-    # Aktion bei einem "or" LispSymbol
-    # @param {LispObject} args Argumente der Aktion
-    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    # or
     ##
-    action: (args, env) ->
+    "Or": (args, env) ->
         unevaluatedCondA = args.first
         unevaluatedCondB = args.second()
         
@@ -318,20 +204,11 @@ class LispBuiltInOrFunction extends LispBuiltInFunction
         if condA?.isLispTrue or condB?.isLispTrue
             return new LispTrue()
         new LispFalse()
-        
-root.LispBuiltInOrFunction = LispBuiltInOrFunction
-
-##
-# not
-##
-class LispBuiltInNotFunction extends LispBuiltInFunction
-
+    
     ##
-    # Aktion bei einem "not" LispSymbol
-    # @param {LispObject} args Argumente der Aktion
-    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    # not
     ##
-    action: (args, env) ->
+    "Not": (args, env) ->
         unevaluatedCond = args.first
         
         cond = LispEvaluator.eval(unevaluatedCond, env)
@@ -339,87 +216,45 @@ class LispBuiltInNotFunction extends LispBuiltInFunction
         if cond?.isLispTrue
             return new LispFalse()
         new LispTrue()
-        
-root.LispBuiltInNotFunction = LispBuiltInNotFunction
-
-##
-# cons
-##
-class LispBuiltInConsFunction extends LispBuiltInFunction
-
+    
     ##
-    # Aktion bei einem "cons" LispSymbol
-    # @param {LispObject} args Argumente der Aktion
-    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    # cons
     ##
-    action: (args, env) ->
+    "Cons": (args, env) ->
         unevaluatedFirst = args.first
         unevaluatedSecond = args.second()
         new LispList(LispEvaluator.eval(unevaluatedFirst, env), LispEvaluator.eval(unevaluatedSecond, env))
-        
-root.LispBuiltInConsFunction = LispBuiltInConsFunction
-
-##
-# first
-##
-class LispBuiltInFirstFunction extends LispBuiltInFunction
-
+    
     ##
-    # Aktion bei einem "first" LispSymbol
-    # @param {LispObject} args Argumente der Aktion
-    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    # first
     ##
-    action: (args, env) ->
+    "First": (args, env) ->
         list = LispEvaluator.eval(args.first, env)
         list.first
-        
-root.LispBuiltInFirstFunction = LispBuiltInFirstFunction
-
-##
-# rest
-##
-class LispBuiltInRestFunction extends LispBuiltInFunction
-
+    
     ##
-    # Aktion bei einem "rest" LispSymbol
-    # @param {LispObject} args Argumente der Aktion
-    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    # rest
     ##
-    action: (args, env) ->
+    "Rest": (args, env) ->
         list = LispEvaluator.eval(args.first, env)
         list.rest
-        
-root.LispBuiltInRestFunction = LispBuiltInRestFunction
-
-##
-# quote
-# Evaluiert die Parameter nicht, sondern gibt sie einfach zurück
-##
-class LispBuiltInQuoteFunction extends LispBuiltInFunction
-
+    
     ##
-    # Aktion bei einem "quote" LispSymbol
-    # @param {LispObject} args Argumente der Aktion
-    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    # quote
+    # Evaluiert die Parameter nicht, sondern gibt sie einfach zurück
     ##
-    action: (args, env) ->
+    "Quote": (args, env) ->
         args.first
-        
-root.LispBuiltInQuoteFunction = LispBuiltInQuoteFunction
-
-##
-# error
-# Gibt eine Fehlermeldung aus
-##
-class LispBuiltInErrorFunction extends LispBuiltInFunction
-
+    
     ##
-    # Aktion bei einem "error" LispSymbol
-    # @param {LispObject} args Argumente der Aktion
-    # @param {LispEnvironment} env Environment, in dem die Argumente evaluiert werden
+    # error
+    # Gibt eine Fehlermeldung aus
     ##
-    action: (args, env) ->
+    "Error": (args, env) ->
         msg = LispEvaluator.eval(args.first, env)
         throw "#{msg.characters}"
-        
-root.LispBuiltInErrorFunction = LispBuiltInErrorFunction
+    
+# erzeuge die Klassen
+for className, action of builtIns
+    class root["LispBuiltIn#{className}Function"] extends LispBuiltInFunction
+        action: action
