@@ -1,12 +1,13 @@
 root = (exports ? this)
+self = this
 
 class LispReader
-    constructor: (frm) ->
-        _.bindAll this, "read"
+    constructor: (editor) ->
         LispEvaluator.defineBuiltInFunctions()
-        $(frm).on "submit", @read
-        @inputField = $("#inputstream")
-        #@activateAutocomplete()
+        # $(frm).on "submit", @read
+        @inputField = 
+            getValue: -> editor.getValue(),
+            setValue: (val) -> editor.setValue val
         
     commentRegex: /^;/
     symbolRegex: /^[^\(\)\.\s'"]/
@@ -14,7 +15,7 @@ class LispReader
     listRegex: /^\(/
     quoteRegex: /^'/
     stringRegex: /^"/
-    seperators: /\s/
+    seperators: /\s|\\n/
     reservedWords: /(nil|true|false)/
     reservedObjects:
         "nil": "LispNil"
@@ -28,9 +29,9 @@ class LispReader
     # Eventhandler der die Eingabe liest und auswertet
     # @param {Event} evt
     ##
-    read: (evt) ->
+    read: (evt) =>
         evt.preventDefault() if evt?
-        inputText = @inputField.val()
+        inputText = @inputField.getValue()
         @input = new StringParser(inputText)
         
         try
@@ -38,13 +39,13 @@ class LispReader
         catch error
             console.error error if console and console.error
             @print error, inputText, true
-            @inputField.val ""
+            @inputField.setValue ""
             return
         
         @print erg, inputText
-        @inputField.val ""
+        @inputField.setValue ""
         #@updateAutocompleteData()
-
+        
     ##
     # Aktiviert das Autocomplete Verhalten beim input Feld
     ##
@@ -95,10 +96,10 @@ class LispReader
             while not @input.atEnd() and not /\n/.test(current)
                 @input.next()
                 current = @input.peek()
-            #@input.next() until @input.atEnd() or /\n/.test(@input.peek())
             @input.skip(@seperators)
             
-        if @integerRegex.test @input.peek()
+            @readObject()
+        else if @integerRegex.test @input.peek()
             @readInteger()
         else if @stringRegex.test @input.peek()
             @readString()
@@ -207,9 +208,7 @@ class LispEnvironment
     # @return {Mixed}
     ##
     getBindingFor: (symbol) ->
-        ret = _(@localBindings).find((binding) ->
-            binding.key.equals symbol
-        )
+        ret = binding for binding in @localBindings when binding.key.equals symbol
         return @parentEnv.getBindingFor(symbol)  if not ret and @parentEnv
         (if ret and ret.value then ret.value else new LispNil())
 
@@ -249,6 +248,7 @@ class LispEvaluator
     # @return {Mixed}
     ##
     @eval: (lispObj, env) ->
+        console.log "eval ", lispObj
         env = env or @env
         if lispObj.isLispAtom
             return env.getBindingFor(lispObj)  if lispObj.isLispSymbol
@@ -298,7 +298,7 @@ class LispEvaluator
     # Definiert alle im System vorhandenen "Built-In" Funktionen
     ##
     @defineBuiltInFunctions: ->
-        _.each
+        builtIns =
             "+": "Plus"
             "-": "Minus"
             "*": "Multiply"
@@ -318,9 +318,10 @@ class LispEvaluator
             "rest": "Rest"
             "quote": "Quote"
             "error": "Error"
-        , (className, symbol) =>
+            
+        for symbol, className of builtIns
             klass = "LispBuiltIn#{className}Function"
             key = new LispSymbol(symbol)
-            @env.addBindingFor key, new window[klass]()
+            @env.addBindingFor key, new self[klass]()
 
 root.LispEvaluator = LispEvaluator

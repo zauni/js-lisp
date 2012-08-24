@@ -1,0 +1,25 @@
+frames
+
+tail call optimization
+
+
+frames haben pc, stack, args, currentFunction, etc.
+
+tree coded byte code interpreter
+
+ROOTS = globale Objekte und aktive Frames (ByteCode)
+
+
+
+
+Abgabe: 
+
+interpreter, closures, sonderpunkte, gui, garbage collector
+dokumentation, lauffähig
+
+schreibt es in 
+
+Abgabetermin: 1. september
+
+
+noch ein termin im juli
