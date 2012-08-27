@@ -1,13 +1,11 @@
 (function() {
   var LispAtom, LispByteCodeAssembler, LispFalse, LispInteger, LispList, LispNil, LispObject, LispString, LispSymbol, LispTrue, LispUserDefinedFunction, root,
     __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   root = typeof exports !== "undefined" && exports !== null ? exports : this;
 
   LispObject = (function() {
-
-    LispObject.name = 'LispObject';
 
     function LispObject() {}
 
@@ -41,8 +39,6 @@
 
     __extends(LispAtom, _super);
 
-    LispAtom.name = 'LispAtom';
-
     function LispAtom() {
       return LispAtom.__super__.constructor.apply(this, arguments);
     }
@@ -58,8 +54,6 @@
   LispInteger = (function(_super) {
 
     __extends(LispInteger, _super);
-
-    LispInteger.name = 'LispInteger';
 
     function LispInteger(value) {
       this.value = value;
@@ -83,8 +77,6 @@
 
     __extends(LispString, _super);
 
-    LispString.name = 'LispString';
-
     function LispString(characters) {
       this.characters = characters;
     }
@@ -106,8 +98,6 @@
   LispSymbol = (function(_super) {
 
     __extends(LispSymbol, _super);
-
-    LispSymbol.name = 'LispSymbol';
 
     function LispSymbol(characters) {
       this.characters = characters;
@@ -134,8 +124,6 @@
   LispList = (function(_super) {
 
     __extends(LispList, _super);
-
-    LispList.name = 'LispList';
 
     function LispList(first, rest) {
       this.first = first;
@@ -182,8 +170,6 @@
 
     __extends(LispNil, _super);
 
-    LispNil.name = 'LispNil';
-
     function LispNil() {
       return LispNil.__super__.constructor.apply(this, arguments);
     }
@@ -205,8 +191,6 @@
   LispTrue = (function(_super) {
 
     __extends(LispTrue, _super);
-
-    LispTrue.name = 'LispTrue';
 
     function LispTrue() {
       return LispTrue.__super__.constructor.apply(this, arguments);
@@ -230,8 +214,6 @@
 
     __extends(LispFalse, _super);
 
-    LispFalse.name = 'LispFalse';
-
     function LispFalse() {
       return LispFalse.__super__.constructor.apply(this, arguments);
     }
@@ -253,8 +235,6 @@
   LispUserDefinedFunction = (function(_super) {
 
     __extends(LispUserDefinedFunction, _super);
-
-    LispUserDefinedFunction.name = 'LispUserDefinedFunction';
 
     function LispUserDefinedFunction(args, bodyList, env) {
       this.args = args;
@@ -286,8 +266,6 @@
 
   LispByteCodeAssembler = (function() {
 
-    LispByteCodeAssembler.name = 'LispByteCodeAssembler';
-
     function LispByteCodeAssembler() {}
 
     LispByteCodeAssembler.prototype.assemble = function() {};
@@ -295,5 +273,7 @@
     return LispByteCodeAssembler;
 
   })();
+
+  root.LispByteCodeAssembler = LispByteCodeAssembler;
 
 }).call(this);

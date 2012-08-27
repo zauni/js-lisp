@@ -1,9 +1,71 @@
 (function() {
-  var LispBuiltInFunction, action, builtIns, className, root,
+  var LispAtom, LispBuiltInFunction, LispByteCodeAssembler, LispEnvironment, LispEvaluator, LispFalse, LispInteger, LispList, LispNil, LispObject, LispString, LispSymbol, LispTrue, LispUserDefinedFunction, action, builtIns, className, isNode, root, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   root = typeof exports !== "undefined" && exports !== null ? exports : this;
+
+  isNode = false;
+
+  if (typeof exports !== "undefined" && exports !== null) {
+    _ref = require("./lisp-objects.js"), LispObject = _ref.LispObject, LispAtom = _ref.LispAtom, LispInteger = _ref.LispInteger, LispString = _ref.LispString, LispSymbol = _ref.LispSymbol, LispList = _ref.LispList, LispNil = _ref.LispNil, LispTrue = _ref.LispTrue, LispFalse = _ref.LispFalse, LispUserDefinedFunction = _ref.LispUserDefinedFunction, LispByteCodeAssembler = _ref.LispByteCodeAssembler;
+    isNode = true;
+  } else {
+    LispObject = root.LispObject, LispAtom = root.LispAtom, LispInteger = root.LispInteger, LispString = root.LispString, LispSymbol = root.LispSymbol, LispList = root.LispList, LispNil = root.LispNil, LispTrue = root.LispTrue, LispFalse = root.LispFalse, LispUserDefinedFunction = root.LispUserDefinedFunction, LispByteCodeAssembler = root.LispByteCodeAssembler;
+  }
+
+  LispEvaluator = null;
+
+  LispEnvironment = (function() {
+
+    function LispEnvironment(parentEnv) {
+      this.localBindings = [];
+      this.parentEnv = parentEnv || null;
+    }
+
+    LispEnvironment.prototype.getBindingFor = function(symbol) {
+      var binding, ret, _i, _len, _ref1;
+      _ref1 = this.localBindings;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        binding = _ref1[_i];
+        if (binding.key.equals(symbol)) {
+          ret = binding;
+        }
+      }
+      if (!ret && this.parentEnv) {
+        return this.parentEnv.getBindingFor(symbol);
+      }
+      if (ret && ret.value) {
+        return ret.value;
+      } else {
+        return new LispNil();
+      }
+    };
+
+    LispEnvironment.prototype.addBindingFor = function(symbol, lispObject) {
+      return this.localBindings.push({
+        key: symbol,
+        value: lispObject
+      });
+    };
+
+    LispEnvironment.prototype.changeBindingFor = function(symbol, lispObject) {
+      var binding, _i, _len, _ref1;
+      _ref1 = this.localBindings;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        binding = _ref1[_i];
+        if (binding.key.equals(symbol)) {
+          binding.value = lispObject;
+          return;
+        }
+      }
+    };
+
+    return LispEnvironment;
+
+  })();
+
+  root.LispEnvironment = LispEnvironment;
 
   LispBuiltInFunction = (function(_super) {
 
@@ -32,9 +94,9 @@
       var arg;
       arg = LispEvaluator["eval"](args.first, env);
       if (arg && !args.rest.isLispNil) {
-        return new LispInteger(arg + (this.action(args.rest, env)).value);
+        return new LispInteger(arg.value + (this.action(args.rest, env)).value);
       } else if (arg) {
-        return new LispInteger(arg);
+        return new LispInteger(arg.value);
       } else {
         return new LispInteger(0);
       }
@@ -43,9 +105,9 @@
       var arg;
       arg = LispEvaluator["eval"](args.first, env);
       if (arg && !args.rest.isLispNil) {
-        return new LispInteger(arg - (this.action(args.rest, env)).value);
+        return new LispInteger(arg.value - (this.action(args.rest, env)).value);
       } else if (arg) {
-        return new LispInteger(arg);
+        return new LispInteger(arg.value);
       } else {
         return new LispInteger(0);
       }
@@ -54,9 +116,9 @@
       var arg;
       arg = LispEvaluator["eval"](args.first, env);
       if (arg && !args.rest.isLispNil) {
-        return new LispInteger(arg * (this.action(args.rest, env)).value);
+        return new LispInteger(arg.value * (this.action(args.rest, env)).value);
       } else if (arg) {
-        return new LispInteger(arg);
+        return new LispInteger(arg.value);
       } else {
         return new LispInteger(0);
       }
@@ -65,9 +127,9 @@
       var arg;
       arg = LispEvaluator["eval"](args.first, env);
       if (arg && !args.rest.isLispNil) {
-        return new LispInteger(arg / (this.action(args.rest, env)).value);
+        return new LispInteger(arg.value / (this.action(args.rest, env)).value);
       } else if (arg) {
-        return new LispInteger(arg);
+        return new LispInteger(arg.value);
       } else {
         return new LispInteger(0);
       }
@@ -146,7 +208,7 @@
       unevaluatedIfBody = args.second();
       unevaluatedElseBody = args.third();
       cond = LispEvaluator["eval"](unevaluatedCond, env);
-      if (cond && cond.isLispTrue) {
+      if (cond != null ? cond.isLispTrue : void 0) {
         return LispEvaluator["eval"](unevaluatedIfBody, env);
       } else {
         return LispEvaluator["eval"](unevaluatedElseBody, env);
@@ -238,7 +300,19 @@
         return _Class.__super__.constructor.apply(this, arguments);
       }
 
-      _Class.prototype.action = action;
+      _Class.prototype.action = (function(className, action) {
+        return function() {
+          if (!LispEvaluator) {
+            if (isNode) {
+              LispEvaluator = require("./lispevaluator.js").LispEvaluator;
+            }
+            if (!isNode) {
+              LispEvaluator = root.LispEvaluator;
+            }
+          }
+          return action.apply(this, arguments);
+        };
+      })(className, action);
 
       return _Class;
 

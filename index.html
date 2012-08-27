@@ -4,49 +4,12 @@
         <title>LispReader</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         
-        <link rel="stylesheet" type="text/css" href="libs/autocomplete/jquery.autocomplete.css" />
         <style type="text/css">
             #editor {
                 position: relative;
                 width: 600px;
                 height: 250px;
-            }/*
-            #frm-inputstream {
-                display: block;
-                margin-top: 100px;
-                text-align: center;
             }
-            #inputstream {
-                border: 1px solid #cccccc;
-                -webkit-border-radius: 3px;
-                -moz-border-radius: 3px;
-                border-radius: 3px;
-                height: 500px;
-                padding: 5px;
-                position: relative;
-                width: 700px;
-            }
-            input,
-            textarea {
-                -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-                -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-                box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-                -webkit-transition: border linear 0.2s, box-shadow linear 0.2s;
-                -moz-transition: border linear 0.2s, box-shadow linear 0.2s;
-                -ms-transition: border linear 0.2s, box-shadow linear 0.2s;
-                -o-transition: border linear 0.2s, box-shadow linear 0.2s;
-                transition: border linear 0.2s, box-shadow linear 0.2s;
-            }
-            input:focus,
-            textarea:focus {
-                border-color: rgba(82, 168, 236, 0.8);
-                -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
-                -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
-                box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
-                outline: 0;
-                outline: thin dotted \9;
-
-            }*/
             .error {
                 color: red;
             }
@@ -56,21 +19,14 @@
         <div id="editor"></div>
         <button id="evaluate-btn">Ausführen (oder Strg+E)</button>
         
-        <!--<form id="frm-inputstream">
-            <textarea id="inputstream" rows="20"></textarea>
-            <input type="submit" value="Run" class="btn" />
-        </form>-->
-        
-        <ul id="output">
-            
-        </ul>
+        <ul id="output"></ul>
         
         <script src="libs/jquery.js"></script>
         <script src="libs/underscore.js"></script>
         <script src="libs/stringparser.js"></script>
-        <!--<script src="libs/autocomplete/jquery.autocomplete.js"></script>-->
         <script src="lisp-objects.js"></script>
         <script src="built-in-functions.js"></script>
+        <script src="lispevaluator.js"></script>
         <script src="lispreader.js"></script>
         
         <script src="libs/ace/ace.js"></script>
@@ -90,9 +46,7 @@
                     win: 'Ctrl-E',
                     mac: 'Command-E'
                 },
-                exec: function() {
-                    lispReader.read();
-                }
+                exec: lispReader.read
             });
             
             $("#evaluate-btn").click(lispReader.read);

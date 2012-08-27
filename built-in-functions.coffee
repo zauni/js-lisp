@@ -1,5 +1,57 @@
-
 root = exports ? this
+isNode = false
+
+if exports?
+    {LispObject, LispAtom, LispInteger, LispString, LispSymbol, LispList, LispNil, LispTrue, LispFalse, LispUserDefinedFunction, LispByteCodeAssembler} = require "./lisp-objects.js"
+    isNode = true
+else
+    {LispObject, LispAtom, LispInteger, LispString, LispSymbol, LispList, LispNil, LispTrue, LispFalse, LispUserDefinedFunction, LispByteCodeAssembler} = root
+    
+LispEvaluator = null # LispEvaluator wird erst später geholt, da eine kreisförmige Abhängigkeit besteht zwischen den Built-In Funktionen und dem Evaluator
+
+
+##
+# LispEnvironment wird hier definiert, um eine kreisförmige Abhängigkeit zu vermeiden
+# (Environment braucht Functions, Functions brauchen Environment)
+##
+class LispEnvironment
+    constructor: (parentEnv) ->
+        @localBindings = []
+        @parentEnv = parentEnv or null
+    
+    ##
+    # Gibt das LispObject an der Stelle des Symbols zurück
+    # @param {LispSymbol} symbol "Key" in der Environment HashTable
+    # @return {Mixed}
+    ##
+    getBindingFor: (symbol) ->
+        ret = binding for binding in @localBindings when binding.key.equals symbol
+        return @parentEnv.getBindingFor(symbol)  if not ret and @parentEnv
+        (if ret and ret.value then ret.value else new LispNil())
+
+    ##
+    # Fügt ein Binding ins Environment hinzu
+    # @param {LispSymbol} symbol "Key" in der Environment HashTable
+    # @param {LispObject} lispObject "Value" in der Environment HashTable
+    ##
+    addBindingFor: (symbol, lispObject) ->
+        @localBindings.push
+            key: symbol
+            value: lispObject
+
+    ##
+    # Ändert ein Binding im Environment
+    # @param {LispSymbol} symbol "Key" in der Environment HashTable
+    # @param {LispObject} lispObject "Value" in der Environment HashTable
+    ##
+    changeBindingFor: (symbol, lispObject) ->
+        for binding in @localBindings
+            if binding.key.equals symbol
+                binding.value = lispObject
+                return
+
+root.LispEnvironment = LispEnvironment
+
 
 ##
 # Built-In Funktionen
@@ -20,9 +72,9 @@ builtIns =
     "Plus": (args, env) ->
         arg = LispEvaluator.eval(args.first, env)
         if arg and not args.rest.isLispNil
-            new LispInteger(arg + (@action(args.rest, env)).value)
+            new LispInteger(arg.value + (@action(args.rest, env)).value)
         else if arg
-            new LispInteger(arg)
+            new LispInteger(arg.value)
         else
             new LispInteger(0)
     
@@ -32,9 +84,9 @@ builtIns =
     "Minus": (args, env) ->
         arg = LispEvaluator.eval(args.first, env)
         if arg and not args.rest.isLispNil
-            new LispInteger(arg - (@action(args.rest, env)).value)
+            new LispInteger(arg.value - (@action(args.rest, env)).value)
         else if arg
-            new LispInteger(arg)
+            new LispInteger(arg.value)
         else
             new LispInteger(0)
     
@@ -44,9 +96,9 @@ builtIns =
     "Multiply": (args, env) ->
         arg = LispEvaluator.eval(args.first, env)
         if arg and not args.rest.isLispNil
-            new LispInteger(arg * (@action(args.rest, env)).value)
+            new LispInteger(arg.value * (@action(args.rest, env)).value)
         else if arg
-            new LispInteger(arg)
+            new LispInteger(arg.value)
         else
             new LispInteger(0)
     
@@ -56,9 +108,9 @@ builtIns =
     "Divide": (args, env) ->
         arg = LispEvaluator.eval(args.first, env)
         if arg and not args.rest.isLispNil
-            new LispInteger(arg / (@action(args.rest, env)).value)
+            new LispInteger(arg.value / (@action(args.rest, env)).value)
         else if arg
-            new LispInteger(arg)
+            new LispInteger(arg.value)
         else
             new LispInteger(0)
     
@@ -151,7 +203,7 @@ builtIns =
         unevaluatedIfBody = args.second()
         unevaluatedElseBody = args.third()
         cond = LispEvaluator.eval(unevaluatedCond, env)
-        if cond and cond.isLispTrue
+        if cond?.isLispTrue
             LispEvaluator.eval(unevaluatedIfBody, env)
         else 
             LispEvaluator.eval(unevaluatedElseBody, env)
@@ -253,8 +305,15 @@ builtIns =
     "Error": (args, env) ->
         msg = LispEvaluator.eval(args.first, env)
         throw "#{msg.characters}"
-    
+
 # erzeuge die Klassen
 for className, action of builtIns
     class root["LispBuiltIn#{className}Function"] extends LispBuiltInFunction
-        action: action
+        action: ((className, action)->
+                    return ->
+                        if !LispEvaluator
+                            {LispEvaluator} = require "./lispevaluator.js" if isNode
+                            {LispEvaluator} = root if !isNode
+                        
+                        action.apply this, arguments
+                )(className, action)

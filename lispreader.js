@@ -1,24 +1,45 @@
 (function() {
-  var LispEnvironment, LispEvaluator, LispReader, root, self,
+  var LispAtom, LispByteCodeAssembler, LispEnvironment, LispEvaluator, LispFalse, LispInteger, LispList, LispNil, LispObject, LispReader, LispString, LispSymbol, LispTrue, LispUserDefinedFunction, StringParser, isNode, repl, root, self, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   root = typeof exports !== "undefined" && exports !== null ? exports : this;
 
   self = this;
 
+  isNode = false;
+
+  if (typeof exports !== "undefined" && exports !== null) {
+    repl = require("repl");
+    StringParser = require("./libs/stringparser.js").StringParser;
+    _ref = require("./lisp-objects.js"), LispEnvironment = _ref.LispEnvironment, LispObject = _ref.LispObject, LispAtom = _ref.LispAtom, LispInteger = _ref.LispInteger, LispString = _ref.LispString, LispSymbol = _ref.LispSymbol, LispList = _ref.LispList, LispNil = _ref.LispNil, LispTrue = _ref.LispTrue, LispFalse = _ref.LispFalse, LispUserDefinedFunction = _ref.LispUserDefinedFunction, LispByteCodeAssembler = _ref.LispByteCodeAssembler;
+    LispEvaluator = require("./lispevaluator.js").LispEvaluator;
+    isNode = true;
+  } else {
+    StringParser = root.StringParser;
+    LispEnvironment = root.LispEnvironment, LispObject = root.LispObject, LispAtom = root.LispAtom, LispInteger = root.LispInteger, LispString = root.LispString, LispSymbol = root.LispSymbol, LispList = root.LispList, LispNil = root.LispNil, LispTrue = root.LispTrue, LispFalse = root.LispFalse, LispUserDefinedFunction = root.LispUserDefinedFunction, LispByteCodeAssembler = root.LispByteCodeAssembler;
+    LispEvaluator = root.LispEvaluator;
+  }
+
   LispReader = (function() {
 
     function LispReader(editor) {
+      this.readFromRepl = __bind(this.readFromRepl, this);
+
       this.read = __bind(this.read, this);
       LispEvaluator.defineBuiltInFunctions();
-      this.inputField = {
-        getValue: function() {
-          return editor.getValue();
-        },
-        setValue: function(val) {
-          return editor.setValue(val);
-        }
-      };
+      if (isNode) {
+        repl = require("repl");
+        repl.start("LISP JS> ", null, this.readFromRepl);
+      } else {
+        this.inputField = {
+          getValue: function() {
+            return editor.getValue();
+          },
+          setValue: function(val) {
+            return editor.setValue(val);
+          }
+        };
+      }
     }
 
     LispReader.prototype.commentRegex = /^;/;
@@ -50,61 +71,54 @@
     LispReader.prototype.read = function(evt) {
       var erg, inputText;
       if (evt != null) {
-        evt.preventDefault();
+        if (typeof evt.preventDefault === "function") {
+          evt.preventDefault();
+        }
       }
       inputText = this.inputField.getValue();
       this.input = new StringParser(inputText);
       try {
         erg = LispEvaluator["eval"](this.readObject());
       } catch (error) {
-        if (console && console.error) {
-          console.error(error);
+        if (typeof console !== "undefined" && console !== null) {
+          if (typeof console.error === "function") {
+            console.error(error);
+          }
         }
         this.print(error, inputText, true);
         this.inputField.setValue("");
-        return;
       }
       this.print(erg, inputText);
       return this.inputField.setValue("");
     };
 
-    LispReader.prototype.activateAutocomplete = function() {
-      self = this;
-      return $("#inputstream").autocomplete({
-        autoFill: true,
-        delay: 0,
-        minChars: 1,
-        data: this.getBindingsData(),
-        onFinish: function() {
-          var autoCompleter, field, value;
-          field = self.inputField;
-          value = field.val();
-          autoCompleter = field.data("autocompleter");
-          field.val(value + ")");
-          return autoCompleter.setCaret(value.length);
-        }
-      });
+    LispReader.prototype.readFromRepl = function(cmd) {
+      var callback, erg;
+      callback = arguments[arguments.length - 1];
+      cmd = cmd.trim().replace(/^\(/, "").replace(/\)$/, "");
+      this.input = new StringParser(cmd);
+      try {
+        erg = LispEvaluator["eval"](this.readObject());
+        return callback(null, erg.toString());
+      } catch (error) {
+        erg = "Error: " + error;
+        return callback(erg);
+      }
     };
 
     LispReader.prototype.getBindingsData = function() {
-      var binding, currentIndex, data, _i, _len, _ref;
+      var binding, currentIndex, data, _i, _len, _ref1;
       data = [];
       currentIndex = 0;
-      _ref = LispEvaluator.env.localBindings;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        binding = _ref[_i];
+      _ref1 = LispEvaluator.env.localBindings;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        binding = _ref1[_i];
         if (binding.value.isLispBuiltInFunction || binding.value.isUserDefinedFunction) {
           data[currentIndex] = ["(" + binding.key.characters, currentIndex + 1];
           currentIndex++;
         }
       }
       return data;
-    };
-
-    LispReader.prototype.updateAutocompleteData = function() {
-      var autoCompleter;
-      autoCompleter = this.inputField.data("autocompleter");
-      return autoCompleter.options.data = this.getBindingsData();
     };
 
     LispReader.prototype.readObject = function() {
@@ -210,144 +224,5 @@
   })();
 
   root.LispReader = LispReader;
-
-  LispEnvironment = (function() {
-
-    function LispEnvironment(parentEnv) {
-      this.localBindings = [];
-      this.parentEnv = parentEnv || null;
-    }
-
-    LispEnvironment.prototype.getBindingFor = function(symbol) {
-      var binding, ret, _i, _len, _ref;
-      _ref = this.localBindings;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        binding = _ref[_i];
-        if (binding.key.equals(symbol)) {
-          ret = binding;
-        }
-      }
-      if (!ret && this.parentEnv) {
-        return this.parentEnv.getBindingFor(symbol);
-      }
-      if (ret && ret.value) {
-        return ret.value;
-      } else {
-        return new LispNil();
-      }
-    };
-
-    LispEnvironment.prototype.addBindingFor = function(symbol, lispObject) {
-      return this.localBindings.push({
-        key: symbol,
-        value: lispObject
-      });
-    };
-
-    LispEnvironment.prototype.changeBindingFor = function(symbol, lispObject) {
-      var binding, _i, _len, _ref;
-      _ref = this.localBindings;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        binding = _ref[_i];
-        if (binding.key.equals(symbol)) {
-          binding.value = lispObject;
-          return;
-        }
-      }
-    };
-
-    return LispEnvironment;
-
-  })();
-
-  root.LispEnvironment = LispEnvironment;
-
-  LispEvaluator = (function() {
-
-    function LispEvaluator() {}
-
-    LispEvaluator.env = new LispEnvironment();
-
-    LispEvaluator["eval"] = function(lispObj, env) {
-      var evaluatedFunc, unevaluatedArgs, unevaluatedFunc;
-      console.log("eval ", lispObj);
-      env = env || this.env;
-      if (lispObj.isLispAtom) {
-        if (lispObj.isLispSymbol) {
-          return env.getBindingFor(lispObj);
-        }
-        return lispObj;
-      }
-      unevaluatedFunc = lispObj.first;
-      evaluatedFunc = this["eval"](unevaluatedFunc, env);
-      unevaluatedArgs = lispObj.rest;
-      if (evaluatedFunc.isLispBuiltInFunction) {
-        return evaluatedFunc.action(unevaluatedArgs, env);
-      } else if (evaluatedFunc.isUserDefinedFunction) {
-        return this.evalUserDefinedFunction(evaluatedFunc, unevaluatedArgs, env);
-      }
-      return new LispNil();
-    };
-
-    LispEvaluator.evalUserDefinedFunction = function(func, unevaluatedArgs, env) {
-      var bodyList, evaluatedArg, formalArgs, lastResult, nameOfFormalArg, newEnv, unevaluatedArg;
-      formalArgs = func.args;
-      newEnv = new LispEnvironment(func.env);
-      unevaluatedArgs = unevaluatedArgs || new LispList();
-      while (!formalArgs.isLispNil) {
-        nameOfFormalArg = formalArgs.first;
-        unevaluatedArg = unevaluatedArgs.first;
-        evaluatedArg = this["eval"](unevaluatedArg, env);
-        newEnv.addBindingFor(nameOfFormalArg, evaluatedArg);
-        formalArgs = formalArgs.rest;
-        unevaluatedArgs = unevaluatedArgs.rest;
-      }
-      bodyList = func.bodyList;
-      lastResult = new LispNil();
-      while (!bodyList.isLispNil) {
-        lastResult = this["eval"](bodyList.first, newEnv);
-        bodyList = bodyList.rest;
-      }
-      return lastResult;
-    };
-
-    LispEvaluator.defineBuiltInFunctions = function() {
-      var builtIns, className, key, klass, symbol, _results;
-      builtIns = {
-        "+": "Plus",
-        "-": "Minus",
-        "*": "Multiply",
-        "/": "Divide",
-        "define": "Define",
-        "set!": "Set",
-        "let": "Let",
-        "lambda": "Lambda",
-        "begin": "Begin",
-        "if": "If",
-        "eq?": "Eq",
-        "and": "And",
-        "or": "Or",
-        "not": "Not",
-        "cons": "Cons",
-        "first": "First",
-        "rest": "Rest",
-        "quote": "Quote",
-        "error": "Error"
-      };
-      _results = [];
-      for (symbol in builtIns) {
-        className = builtIns[symbol];
-        klass = "LispBuiltIn" + className + "Function";
-        key = new LispSymbol(symbol);
-        _results.push(this.env.addBindingFor(key, new self[klass]()));
-      }
-      return _results;
-    };
-
-    return LispEvaluator;
-
-  })();
-
-  root.LispEvaluator = LispEvaluator;
 
 }).call(this);

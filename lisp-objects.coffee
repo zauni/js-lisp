@@ -1,4 +1,4 @@
-root = (exports ? this)
+root = exports ? this
 
 ##
 # Elternklasse für alle LISP Objekte
@@ -146,3 +146,4 @@ root.LispUserDefinedFunction = LispUserDefinedFunction
 class LispByteCodeAssembler
     assemble: ->
     
+root.LispByteCodeAssembler = LispByteCodeAssembler

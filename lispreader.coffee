@@ -1,13 +1,32 @@
 root = (exports ? this)
 self = this
+isNode = false
+
+if exports?
+    repl = require "repl"
+    {StringParser} = require "./libs/stringparser.js"
+    {LispEnvironment, LispObject, LispAtom, LispInteger, LispString, LispSymbol, LispList, LispNil, LispTrue, LispFalse, LispUserDefinedFunction, LispByteCodeAssembler} = require "./lisp-objects.js"
+    {LispEvaluator} = require "./lispevaluator.js"
+    isNode = true
+else
+    {StringParser} = root
+    {LispEnvironment, LispObject, LispAtom, LispInteger, LispString, LispSymbol, LispList, LispNil, LispTrue, LispFalse, LispUserDefinedFunction, LispByteCodeAssembler} = root
+    {LispEvaluator} = root
 
 class LispReader
     constructor: (editor) ->
+        #console?.log? "are we in node environment?", isNode
+        
         LispEvaluator.defineBuiltInFunctions()
-        # $(frm).on "submit", @read
-        @inputField = 
-            getValue: -> editor.getValue(),
-            setValue: (val) -> editor.setValue val
+        
+        # starte REPL in Node.JS
+        if isNode
+            repl = require "repl"
+            repl.start "LISP JS> ", null, @readFromRepl
+        else
+            @inputField = 
+                getValue: -> editor.getValue(),
+                setValue: (val) -> editor.setValue val
         
     commentRegex: /^;/
     symbolRegex: /^[^\(\)\.\s'"]/
@@ -30,38 +49,38 @@ class LispReader
     # @param {Event} evt
     ##
     read: (evt) =>
-        evt.preventDefault() if evt?
+        evt?.preventDefault?()
         inputText = @inputField.getValue()
+        #console?.log? "cmd: ", inputText
         @input = new StringParser(inputText)
         
         try
             erg = LispEvaluator.eval(@readObject())
         catch error
-            console.error error if console and console.error
+            console?.error? error
             @print error, inputText, true
             @inputField.setValue ""
-            return
         
         @print erg, inputText
         @inputField.setValue ""
-        #@updateAutocompleteData()
+
+    ##
+    # Liest die Eingaben aus der Node.JS ReadEvalPrintLoop
+    # @param {String} cmd
+    # @param {Function} callback
+    ##
+    readFromRepl: (cmd) =>
+        callback = arguments[arguments.length-1]; # callback ist immer letztes argument
+        cmd = cmd.trim().replace(/^\(/, "").replace(/\)$/, "") # Node fügt komischerweise manchmal Klammern () um das Kommando ein...
+        #console?.log? "cmd: ", cmd
+        @input = new StringParser(cmd)
         
-    ##
-    # Aktiviert das Autocomplete Verhalten beim input Feld
-    ##
-    activateAutocomplete: ->
-        self = this
-        $("#inputstream").autocomplete
-            autoFill: true
-            delay: 0
-            minChars: 1
-            data: @getBindingsData()
-            onFinish: ->
-                field = self.inputField
-                value = field.val()
-                autoCompleter = field.data("autocompleter")
-                field.val value + ")"
-                autoCompleter.setCaret value.length
+        try
+            erg = LispEvaluator.eval(@readObject())
+            callback(null, erg.toString())
+        catch error
+            erg = "Error: #{error}"
+            callback(erg)
 
     ##
     # Holt die aktuellen Built-in und User-Defined Functions
@@ -76,13 +95,6 @@ class LispReader
                 currentIndex++
 
         data
-
-    ##
-    # Aktualisiert den Autocompleter
-    ##
-    updateAutocompleteData: ->
-        autoCompleter = @inputField.data("autocompleter")
-        autoCompleter.options.data = @getBindingsData()
 
     ##
     # List ein Lisp Objekt
@@ -196,132 +208,3 @@ class LispReader
                              <li#{(if isError then " class='error'" else "")}>#{lispObject.toString()}</li>"
 
 root.LispReader = LispReader
-
-class LispEnvironment
-    constructor: (parentEnv) ->
-        @localBindings = []
-        @parentEnv = parentEnv or null
-    
-    ##
-    # Gibt das LispObject an der Stelle des Symbols zurück
-    # @param {LispSymbol} symbol "Key" in der Environment HashTable
-    # @return {Mixed}
-    ##
-    getBindingFor: (symbol) ->
-        ret = binding for binding in @localBindings when binding.key.equals symbol
-        return @parentEnv.getBindingFor(symbol)  if not ret and @parentEnv
-        (if ret and ret.value then ret.value else new LispNil())
-
-    ##
-    # Fügt ein Binding ins Environment hinzu
-    # @param {LispSymbol} symbol "Key" in der Environment HashTable
-    # @param {LispObject} lispObject "Value" in der Environment HashTable
-    ##
-    addBindingFor: (symbol, lispObject) ->
-        @localBindings.push
-            key: symbol
-            value: lispObject
-
-    ##
-    # Ändert ein Binding im Environment
-    # @param {LispSymbol} symbol "Key" in der Environment HashTable
-    # @param {LispObject} lispObject "Value" in der Environment HashTable
-    ##
-    changeBindingFor: (symbol, lispObject) ->
-        for binding in @localBindings
-            if binding.key.equals symbol
-                binding.value = lispObject
-                return
-
-root.LispEnvironment = LispEnvironment
-
-##
-# LispEvaluator um Lisp Objekte zu evaluieren
-##
-class LispEvaluator
-    @env: new LispEnvironment()
-    
-    ##
-    # Evaluiert ein gegebenes LispObject
-    # @param {LispObject} lispObj Das zu evaluierende Object
-    # @param {LispEnvironment} env Das Environment, in dem evaluiert wird
-    # @return {Mixed}
-    ##
-    @eval: (lispObj, env) ->
-        console.log "eval ", lispObj
-        env = env or @env
-        if lispObj.isLispAtom
-            return env.getBindingFor(lispObj)  if lispObj.isLispSymbol
-            return lispObj
-        
-        unevaluatedFunc = lispObj.first
-        evaluatedFunc = @eval(unevaluatedFunc, env)
-        unevaluatedArgs = lispObj.rest
-        
-        if evaluatedFunc.isLispBuiltInFunction
-            return evaluatedFunc.action(unevaluatedArgs, env)
-        else if evaluatedFunc.isUserDefinedFunction
-            return @evalUserDefinedFunction(evaluatedFunc, unevaluatedArgs, env)
-        new LispNil()
-        
-    ##
-    # Evaluiert eine Funktion, die vom Benutzer mittels lambda erzeugt wurde
-    # @param {LispUserDefinedFunction} func Die Funktion
-    # @param {LispList} unevaluatedArgs Die Argumente an die Funktion
-    # @param {LispEnvironment} env
-    # @return {Mixed}
-    ##
-    @evalUserDefinedFunction: (func, unevaluatedArgs, env) ->
-        formalArgs = func.args
-        newEnv = new LispEnvironment(func.env)
-        unevaluatedArgs = unevaluatedArgs or new LispList()
-       
-        until formalArgs.isLispNil
-            nameOfFormalArg = formalArgs.first
-            unevaluatedArg = unevaluatedArgs.first
-            evaluatedArg = @eval unevaluatedArg, env
-            newEnv.addBindingFor nameOfFormalArg, evaluatedArg
-            
-            formalArgs = formalArgs.rest
-            unevaluatedArgs = unevaluatedArgs.rest
-
-        bodyList = func.bodyList
-        lastResult = new LispNil()
-
-        until bodyList.isLispNil
-            lastResult = @eval bodyList.first, newEnv
-            bodyList = bodyList.rest
-
-        lastResult
-
-    ##
-    # Definiert alle im System vorhandenen "Built-In" Funktionen
-    ##
-    @defineBuiltInFunctions: ->
-        builtIns =
-            "+": "Plus"
-            "-": "Minus"
-            "*": "Multiply"
-            "/": "Divide"
-            "define": "Define"
-            "set!": "Set"
-            "let": "Let"
-            "lambda": "Lambda"
-            "begin": "Begin"
-            "if": "If"
-            "eq?": "Eq"
-            "and": "And"
-            "or": "Or"
-            "not": "Not"
-            "cons": "Cons"
-            "first": "First"
-            "rest": "Rest"
-            "quote": "Quote"
-            "error": "Error"
-            
-        for symbol, className of builtIns
-            klass = "LispBuiltIn#{className}Function"
-            key = new LispSymbol(symbol)
-            @env.addBindingFor key, new self[klass]()
-
-root.LispEvaluator = LispEvaluator
