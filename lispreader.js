@@ -76,7 +76,7 @@
         }
       }
       inputText = this.inputField.getValue();
-      this.input = new StringParser(inputText);
+      this.input = new StringParser("(begin " + inputText + ")");
       try {
         erg = LispEvaluator["eval"](this.readObject());
       } catch (error) {

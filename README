@@ -129,7 +129,6 @@ Gibt einen String aus.
 
 # Bekannte Probleme
 
-- Der Editor kann zurzeit nur eine Anweisung ausführen. Sollen mehrere Anweisungen ausgeführt werden, so muss die _begin_ Funktion eingesetzt werden. (Dies könnte man eventuell auch noch automatisieren)
 
 # Kompatibilität
 Getestet wurde JS-LISP in folgender Umgebung:

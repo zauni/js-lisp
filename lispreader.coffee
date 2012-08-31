@@ -52,7 +52,7 @@ class LispReader
         evt?.preventDefault?()
         inputText = @inputField.getValue()
         #console?.log? "cmd: ", inputText
-        @input = new StringParser(inputText)
+        @input = new StringParser("(begin #{inputText})")
         
         try
             erg = LispEvaluator.eval(@readObject())
