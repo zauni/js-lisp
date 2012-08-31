@@ -85,10 +85,10 @@
             console.error(error);
           }
         }
-        this.print(error, inputText, true);
+        LispReader.print(error, inputText, true);
         this.inputField.setValue("");
       }
-      this.print(erg, inputText);
+      LispReader.print(erg, inputText);
       return this.inputField.setValue("");
     };
 
@@ -212,11 +212,14 @@
       return new LispList(element, this.readListRest());
     };
 
-    LispReader.prototype.print = function(lispObject, inputText, isError) {
+    LispReader.print = function(lispObject, inputText, isError) {
       if (isError == null) {
         isError = false;
       }
-      return $("#output").append("<li" + (isError ? " class='error'" : "") + "> &gt;&gt; " + inputText + "</li>                             <li" + (isError ? " class='error'" : "") + ">" + (lispObject.toString()) + "</li>");
+      if (inputText) {
+        $("#output").append("<li" + (isError ? " class='error'" : "") + "> &gt;&gt; " + inputText + "</li>");
+      }
+      return $("#output").append("<li" + (isError ? " class='error'" : "") + ">" + (lispObject.toString()) + "</li>");
     };
 
     return LispReader;

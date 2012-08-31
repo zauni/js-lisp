@@ -3,8 +3,6 @@
 
   StringParser = (function() {
 
-    StringParser.name = 'StringParser';
-
     function StringParser(text) {
       if (typeof text !== "string") {
         throw "StringParser expected String but got " + (typeof text);
@@ -12,7 +10,7 @@
       if (text.length === 0) {
         throw "StringParser expected a non-empty String";
       }
-      this.text = text;
+      this.text = text.replace(/\r\n/g, "\n");
       this.currentIndex = 0;
     }
 

@@ -94,6 +94,7 @@ class LispEvaluator
             "rest": "Rest"
             "quote": "Quote"
             "error": "Error"
+            "print": "Print"
             
         for symbol, className of builtIns
             klass = "LispBuiltIn#{className}Function"

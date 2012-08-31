@@ -85,7 +85,8 @@
         "first": "First",
         "rest": "Rest",
         "quote": "Quote",
-        "error": "Error"
+        "error": "Error",
+        "print": "Print"
       };
       _results = [];
       for (symbol in builtIns) {

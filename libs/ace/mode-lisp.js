@@ -96,6 +96,7 @@ var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
 
 var LispHighlightRules = function() {
 
+    // könnten auch aus dem array geladen werden
     var builtInFunctions = lang.arrayToMap(
         // Math
         ("+|-|*|\\/|" +
@@ -106,7 +107,7 @@ var LispHighlightRules = function() {
         // Listen
         "cons|first|rest|" + 
         // Other
-        "quote|error"
+        "quote|error|print"
       ).split("|")
     );
         

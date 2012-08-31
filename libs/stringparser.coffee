@@ -13,7 +13,7 @@ class StringParser
     constructor: (text) ->
         throw "StringParser expected String but got #{typeof text}" unless typeof text is "string"
         throw "StringParser expected a non-empty String" if text.length is 0
-        @text = text
+        @text = text.replace /\r\n/g, "\n"   # normalisiere die Newline Character
         @currentIndex = 0
   
     ##

@@ -1,5 +1,5 @@
 (function() {
-  var LispAtom, LispBuiltInFunction, LispByteCodeAssembler, LispEnvironment, LispEvaluator, LispFalse, LispInteger, LispList, LispNil, LispObject, LispString, LispSymbol, LispTrue, LispUserDefinedFunction, action, builtIns, className, isNode, root, _ref,
+  var LispAtom, LispBuiltInFunction, LispByteCodeAssembler, LispEnvironment, LispEvaluator, LispFalse, LispInteger, LispList, LispNil, LispObject, LispString, LispSymbol, LispTrue, LispUserDefinedFunction, action, className, isNode, params, root, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -89,209 +89,277 @@
 
   root.LispBuiltInFunction = LispBuiltInFunction;
 
-  builtIns = {
-    "Plus": function(args, env) {
-      var arg;
-      arg = LispEvaluator["eval"](args.first, env);
-      if (arg && !args.rest.isLispNil) {
-        return new LispInteger(arg.value + (this.action(args.rest, env)).value);
-      } else if (arg) {
-        return new LispInteger(arg.value);
-      } else {
-        return new LispInteger(0);
-      }
-    },
-    "Minus": function(args, env) {
-      var arg;
-      arg = LispEvaluator["eval"](args.first, env);
-      if (arg && !args.rest.isLispNil) {
-        return new LispInteger(arg.value - (this.action(args.rest, env)).value);
-      } else if (arg) {
-        return new LispInteger(arg.value);
-      } else {
-        return new LispInteger(0);
-      }
-    },
-    "Multiply": function(args, env) {
-      var arg;
-      arg = LispEvaluator["eval"](args.first, env);
-      if (arg && !args.rest.isLispNil) {
-        return new LispInteger(arg.value * (this.action(args.rest, env)).value);
-      } else if (arg) {
-        return new LispInteger(arg.value);
-      } else {
-        return new LispInteger(0);
-      }
-    },
-    "Divide": function(args, env) {
-      var arg;
-      arg = LispEvaluator["eval"](args.first, env);
-      if (arg && !args.rest.isLispNil) {
-        return new LispInteger(arg.value / (this.action(args.rest, env)).value);
-      } else if (arg) {
-        return new LispInteger(arg.value);
-      } else {
-        return new LispInteger(0);
-      }
-    },
-    "Define": function(args, env) {
-      var bodyList, definedBinding, func, funcName, unevaluatedArgs, value, varNameOrFunc;
-      varNameOrFunc = args.first;
-      if (varNameOrFunc.isLispSymbol) {
-        definedBinding = env.getBindingFor(varNameOrFunc);
-        if (!definedBinding.isLispNil) {
-          return definedBinding;
-        }
-        value = LispEvaluator["eval"](args.rest.first, env);
-        env.addBindingFor(varNameOrFunc, value);
-        return value;
-      } else if (varNameOrFunc.isLispList) {
-        funcName = varNameOrFunc.first;
-        unevaluatedArgs = varNameOrFunc.rest;
-        bodyList = args.rest;
-        func = new LispUserDefinedFunction(unevaluatedArgs, bodyList, env);
-        env.addBindingFor(funcName, func);
-        return func;
-      }
-      return new LispNil();
-    },
-    "Set": function(args, env) {
-      var definedBinding, value, varName;
-      varName = args.first;
-      value = LispEvaluator["eval"](args.rest.first, env);
-      if (varName.isLispSymbol) {
-        definedBinding = env.getBindingFor(varName);
-        if (definedBinding.isLispNil) {
-          throw "" + varName + " is not defined and cannot be set to " + value;
-        }
-        env.changeBindingFor(varName, value);
-        return value;
-      }
-      return new LispNil();
-    },
-    "Let": function(args, env) {
-      var bodies, currentPair, evaluate, key, keyValueList, tempEnv, value;
-      keyValueList = args.first;
-      currentPair = keyValueList.first;
-      bodies = args.rest;
-      tempEnv = new LispEnvironment(env);
-      while (!keyValueList.isLispNil) {
-        key = currentPair.first;
-        value = currentPair.second();
-        evaluate = new LispList(new LispSymbol("define"), new LispList(key, new LispList(value, new LispNil())));
-        LispEvaluator["eval"](evaluate, tempEnv);
-        keyValueList = keyValueList.rest;
-        currentPair = keyValueList.first;
-      }
-      evaluate = new LispList(new LispSymbol("begin"), bodies);
-      return LispEvaluator["eval"](evaluate, tempEnv);
-    },
-    "Lambda": function(args, env) {
-      var bodyList, unevaluatedArgs;
-      unevaluatedArgs = args.first;
-      bodyList = args.rest;
-      return new LispUserDefinedFunction(unevaluatedArgs, bodyList, env);
-    },
-    "Begin": function(args, env) {
-      var restList, result;
-      result = new LispNil();
-      restList = args;
-      while (!restList.isLispNil) {
-        result = LispEvaluator["eval"](restList.first, env);
-        restList = restList.rest;
-      }
-      return result;
-    },
-    "If": function(args, env) {
-      var cond, unevaluatedCond, unevaluatedElseBody, unevaluatedIfBody;
-      unevaluatedCond = args.first;
-      unevaluatedIfBody = args.second();
-      unevaluatedElseBody = args.third();
-      cond = LispEvaluator["eval"](unevaluatedCond, env);
-      if (cond != null ? cond.isLispTrue : void 0) {
-        return LispEvaluator["eval"](unevaluatedIfBody, env);
-      } else {
-        return LispEvaluator["eval"](unevaluatedElseBody, env);
-      }
-    },
-    "Eq": function(args, env) {
-      var A, B, comp, unevaluatedA, unevaluatedB;
-      unevaluatedA = args.first;
-      unevaluatedB = args.second();
-      A = LispEvaluator["eval"](unevaluatedA, env);
-      B = LispEvaluator["eval"](unevaluatedB, env);
-      comp = function(a, b) {
-        if ((a.isLispSymbol && b.isLispSymbol) || (a.isLispString && b.isLispString)) {
-          return a.characters === b.characters;
-        } else if (a.isLispAtom && b.isLispAtom) {
-          return a.value === b.value;
-        } else if (a.isLispList && b.isLispList) {
-          return comp(a.first, b.first) && comp(a.rest, b.rest);
+  root.builtIns = {
+    "Plus": {
+      symbol: "+",
+      action: function(args, env) {
+        var arg;
+        arg = LispEvaluator["eval"](args.first, env);
+        if (arg && !args.rest.isLispNil) {
+          return new LispInteger(arg.value + (this.action(args.rest, env)).value);
+        } else if (arg) {
+          return new LispInteger(arg.value);
         } else {
-          return a === b;
+          return new LispInteger(0);
         }
-      };
-      return (comp(A, B) ? new LispTrue() : new LispFalse());
-    },
-    "And": function(args, env) {
-      var condA, condB, unevaluatedCondA, unevaluatedCondB;
-      unevaluatedCondA = args.first;
-      unevaluatedCondB = args.second();
-      condA = LispEvaluator["eval"](unevaluatedCondA, env);
-      condB = LispEvaluator["eval"](unevaluatedCondB, env);
-      if ((condA != null ? condA.isLispTrue : void 0) && (condB != null ? condB.isLispTrue : void 0)) {
-        return new LispTrue();
       }
-      return new LispFalse();
     },
-    "Or": function(args, env) {
-      var condA, condB, unevaluatedCondA, unevaluatedCondB;
-      unevaluatedCondA = args.first;
-      unevaluatedCondB = args.second();
-      condA = LispEvaluator["eval"](unevaluatedCondA, env);
-      condB = LispEvaluator["eval"](unevaluatedCondB, env);
-      if ((condA != null ? condA.isLispTrue : void 0) || (condB != null ? condB.isLispTrue : void 0)) {
-        return new LispTrue();
+    "Minus": {
+      symbol: "-",
+      action: function(args, env) {
+        var arg;
+        arg = LispEvaluator["eval"](args.first, env);
+        if (arg && !args.rest.isLispNil) {
+          return new LispInteger(arg.value - (this.action(args.rest, env)).value);
+        } else if (arg) {
+          return new LispInteger(arg.value);
+        } else {
+          return new LispInteger(0);
+        }
       }
-      return new LispFalse();
     },
-    "Not": function(args, env) {
-      var cond, unevaluatedCond;
-      unevaluatedCond = args.first;
-      cond = LispEvaluator["eval"](unevaluatedCond, env);
-      if (cond != null ? cond.isLispTrue : void 0) {
+    "Multiply": {
+      symbol: "*",
+      action: function(args, env) {
+        var arg;
+        arg = LispEvaluator["eval"](args.first, env);
+        if (arg && !args.rest.isLispNil) {
+          return new LispInteger(arg.value * (this.action(args.rest, env)).value);
+        } else if (arg) {
+          return new LispInteger(arg.value);
+        } else {
+          return new LispInteger(0);
+        }
+      }
+    },
+    "Divide": {
+      symbol: "/",
+      action: function(args, env) {
+        var arg;
+        arg = LispEvaluator["eval"](args.first, env);
+        if (arg && !args.rest.isLispNil) {
+          return new LispInteger(arg.value / (this.action(args.rest, env)).value);
+        } else if (arg) {
+          return new LispInteger(arg.value);
+        } else {
+          return new LispInteger(0);
+        }
+      }
+    },
+    "Define": {
+      symbol: "define",
+      action: function(args, env) {
+        var bodyList, definedBinding, func, funcName, unevaluatedArgs, value, varNameOrFunc;
+        varNameOrFunc = args.first;
+        if (varNameOrFunc.isLispSymbol) {
+          definedBinding = env.getBindingFor(varNameOrFunc);
+          if (!definedBinding.isLispNil) {
+            return definedBinding;
+          }
+          value = LispEvaluator["eval"](args.rest.first, env);
+          env.addBindingFor(varNameOrFunc, value);
+          return value;
+        } else if (varNameOrFunc.isLispList) {
+          funcName = varNameOrFunc.first;
+          unevaluatedArgs = varNameOrFunc.rest;
+          bodyList = args.rest;
+          func = new LispUserDefinedFunction(unevaluatedArgs, bodyList, env);
+          env.addBindingFor(funcName, func);
+          return func;
+        }
+        return new LispNil();
+      }
+    },
+    "Set": {
+      symbol: "set!",
+      action: function(args, env) {
+        var definedBinding, value, varName;
+        varName = args.first;
+        value = LispEvaluator["eval"](args.rest.first, env);
+        if (varName.isLispSymbol) {
+          definedBinding = env.getBindingFor(varName);
+          if (definedBinding.isLispNil) {
+            throw "" + varName + " is not defined and cannot be set to " + value;
+          }
+          env.changeBindingFor(varName, value);
+          return value;
+        }
+        return new LispNil();
+      }
+    },
+    "Let": {
+      symbol: "let",
+      action: function(args, env) {
+        var bodies, currentPair, evaluate, key, keyValueList, tempEnv, value;
+        keyValueList = args.first;
+        currentPair = keyValueList.first;
+        bodies = args.rest;
+        tempEnv = new LispEnvironment(env);
+        while (!keyValueList.isLispNil) {
+          key = currentPair.first;
+          value = currentPair.second();
+          evaluate = new LispList(new LispSymbol("define"), new LispList(key, new LispList(value, new LispNil())));
+          LispEvaluator["eval"](evaluate, tempEnv);
+          keyValueList = keyValueList.rest;
+          currentPair = keyValueList.first;
+        }
+        evaluate = new LispList(new LispSymbol("begin"), bodies);
+        return LispEvaluator["eval"](evaluate, tempEnv);
+      }
+    },
+    "Lambda": {
+      symbol: "lambda",
+      action: function(args, env) {
+        var bodyList, unevaluatedArgs;
+        unevaluatedArgs = args.first;
+        bodyList = args.rest;
+        return new LispUserDefinedFunction(unevaluatedArgs, bodyList, env);
+      }
+    },
+    "Begin": {
+      symbol: "begin",
+      action: function(args, env) {
+        var restList, result;
+        result = new LispNil();
+        restList = args;
+        while (!restList.isLispNil) {
+          result = LispEvaluator["eval"](restList.first, env);
+          restList = restList.rest;
+        }
+        return result;
+      }
+    },
+    "If": {
+      symbol: "if",
+      action: function(args, env) {
+        var cond, unevaluatedCond, unevaluatedElseBody, unevaluatedIfBody;
+        unevaluatedCond = args.first;
+        unevaluatedIfBody = args.second();
+        unevaluatedElseBody = args.third();
+        cond = LispEvaluator["eval"](unevaluatedCond, env);
+        if (cond != null ? cond.isLispTrue : void 0) {
+          return LispEvaluator["eval"](unevaluatedIfBody, env);
+        } else {
+          return LispEvaluator["eval"](unevaluatedElseBody, env);
+        }
+      }
+    },
+    "Eq": {
+      symbol: "eq?",
+      action: function(args, env) {
+        var A, B, comp, unevaluatedA, unevaluatedB;
+        unevaluatedA = args.first;
+        unevaluatedB = args.second();
+        A = LispEvaluator["eval"](unevaluatedA, env);
+        B = LispEvaluator["eval"](unevaluatedB, env);
+        comp = function(a, b) {
+          if ((a.isLispSymbol && b.isLispSymbol) || (a.isLispString && b.isLispString)) {
+            return a.characters === b.characters;
+          } else if (a.isLispAtom && b.isLispAtom) {
+            return a.value === b.value;
+          } else if (a.isLispList && b.isLispList) {
+            return comp(a.first, b.first) && comp(a.rest, b.rest);
+          } else {
+            return a === b;
+          }
+        };
+        return (comp(A, B) ? new LispTrue() : new LispFalse());
+      }
+    },
+    "And": {
+      symbol: "and",
+      action: function(args, env) {
+        var condA, condB, unevaluatedCondA, unevaluatedCondB;
+        unevaluatedCondA = args.first;
+        unevaluatedCondB = args.second();
+        condA = LispEvaluator["eval"](unevaluatedCondA, env);
+        condB = LispEvaluator["eval"](unevaluatedCondB, env);
+        if ((condA != null ? condA.isLispTrue : void 0) && (condB != null ? condB.isLispTrue : void 0)) {
+          return new LispTrue();
+        }
         return new LispFalse();
       }
-      return new LispTrue();
     },
-    "Cons": function(args, env) {
-      var unevaluatedFirst, unevaluatedSecond;
-      unevaluatedFirst = args.first;
-      unevaluatedSecond = args.second();
-      return new LispList(LispEvaluator["eval"](unevaluatedFirst, env), LispEvaluator["eval"](unevaluatedSecond, env));
+    "Or": {
+      symbol: "or",
+      action: function(args, env) {
+        var condA, condB, unevaluatedCondA, unevaluatedCondB;
+        unevaluatedCondA = args.first;
+        unevaluatedCondB = args.second();
+        condA = LispEvaluator["eval"](unevaluatedCondA, env);
+        condB = LispEvaluator["eval"](unevaluatedCondB, env);
+        if ((condA != null ? condA.isLispTrue : void 0) || (condB != null ? condB.isLispTrue : void 0)) {
+          return new LispTrue();
+        }
+        return new LispFalse();
+      }
     },
-    "First": function(args, env) {
-      var list;
-      list = LispEvaluator["eval"](args.first, env);
-      return list.first;
+    "Not": {
+      symbol: "not",
+      action: function(args, env) {
+        var cond, unevaluatedCond;
+        unevaluatedCond = args.first;
+        cond = LispEvaluator["eval"](unevaluatedCond, env);
+        if (cond != null ? cond.isLispTrue : void 0) {
+          return new LispFalse();
+        }
+        return new LispTrue();
+      }
     },
-    "Rest": function(args, env) {
-      var list;
-      list = LispEvaluator["eval"](args.first, env);
-      return list.rest;
+    "Cons": {
+      symbol: "cons",
+      action: function(args, env) {
+        var unevaluatedFirst, unevaluatedSecond;
+        unevaluatedFirst = args.first;
+        unevaluatedSecond = args.second();
+        return new LispList(LispEvaluator["eval"](unevaluatedFirst, env), LispEvaluator["eval"](unevaluatedSecond, env));
+      }
     },
-    "Quote": function(args, env) {
-      return args.first;
+    "First": {
+      symbol: "first",
+      action: function(args, env) {
+        var list;
+        list = LispEvaluator["eval"](args.first, env);
+        return list.first;
+      }
     },
-    "Error": function(args, env) {
-      var msg;
-      msg = LispEvaluator["eval"](args.first, env);
-      throw "" + msg.characters;
+    "Rest": {
+      symbol: "rest",
+      action: function(args, env) {
+        var list;
+        list = LispEvaluator["eval"](args.first, env);
+        return list.rest;
+      }
+    },
+    "Quote": {
+      symbol: "quote",
+      action: function(args, env) {
+        return args.first;
+      }
+    },
+    "Error": {
+      symbol: "error",
+      action: function(args, env) {
+        var msg;
+        msg = LispEvaluator["eval"](args.first, env);
+        throw "" + msg.characters;
+      }
+    },
+    "Print": {
+      symbol: "print",
+      action: function(args, env) {
+        var msg, output;
+        msg = LispEvaluator["eval"](args.first, env);
+        output = isNode ? console.log : root.LispReader.print;
+        output("" + msg.characters);
+        return msg;
+      }
     }
   };
 
   for (className in builtIns) {
-    action = builtIns[className];
+    params = builtIns[className];
+    action = params.action;
     root["LispBuiltIn" + className + "Function"] = (function(_super) {
 
       __extends(_Class, _super);
