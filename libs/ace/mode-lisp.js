@@ -101,11 +101,11 @@ var LispHighlightRules = function() {
         // Math
         ("+|-|*|\\/|" +
         // Variables
-        "define|set!|let|lambda|begin|" +
+        "define|set!|let|lambda|begin|set-bytecode!|set-literals!|get-body|get-argList|" +
         // Boolsche Operatoren
-        "if|eq?|and|or|not|" +
+        "if|eq?|cons?|symbol?|number?|and|or|not|" +
         // Listen
-        "cons|first|rest|" + 
+        "cons|first|rest|second|third|reverse|" + 
         // Other
         "quote|error|print"
       ).split("|")

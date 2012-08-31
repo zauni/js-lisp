@@ -2,10 +2,10 @@ root = exports ? this
 isNode = false
 
 if exports?
-    {LispObject, LispAtom, LispInteger, LispString, LispSymbol, LispList, LispNil, LispTrue, LispFalse, LispUserDefinedFunction, LispByteCodeAssembler} = require "./lisp-objects.js"
+    {LispObject, LispAtom, LispInteger, LispString, LispSymbol, LispList, LispNil, LispTrue, LispFalse, LispUserDefinedFunction, LispBytecodeAssembler} = require "./lisp-objects.js"
     isNode = true
 else
-    {LispObject, LispAtom, LispInteger, LispString, LispSymbol, LispList, LispNil, LispTrue, LispFalse, LispUserDefinedFunction, LispByteCodeAssembler} = root
+    {LispObject, LispAtom, LispInteger, LispString, LispSymbol, LispList, LispNil, LispTrue, LispFalse, LispUserDefinedFunction, LispBytecodeAssembler} = root
     
 LispEvaluator = null # LispEvaluator wird erst später geholt, da eine kreisförmige Abhängigkeit besteht zwischen den Built-In Funktionen und dem Evaluator
 
@@ -27,7 +27,7 @@ class LispEnvironment
     getBindingFor: (symbol) ->
         ret = binding for binding in @localBindings when binding.key.equals symbol
         return @parentEnv.getBindingFor(symbol)  if not ret and @parentEnv
-        (if ret and ret.value then ret.value else new LispNil())
+        (if ret and ret.value then ret.value else null)
 
     ##
     # Fügt ein Binding ins Environment hinzu
@@ -133,7 +133,7 @@ root.builtIns =
             if varNameOrFunc.isLispSymbol
                 # Bindings, die es schon gibt, werden nicht überschrieben!
                 definedBinding = env.getBindingFor varNameOrFunc
-                return definedBinding if not definedBinding.isLispNil
+                return definedBinding unless definedBinding == null
 
                 value = LispEvaluator.eval(args.rest.first, env)
                 env.addBindingFor varNameOrFunc, value
@@ -160,7 +160,7 @@ root.builtIns =
 
             if varName.isLispSymbol
                 definedBinding = env.getBindingFor varName
-                throw "#{varName} is not defined and cannot be set to #{value}" if definedBinding.isLispNil
+                throw "#{varName} is not defined and cannot be set to #{value}" if definedBinding == null
 
                 env.changeBindingFor varName, value
                 return value
@@ -199,6 +199,46 @@ root.builtIns =
             unevaluatedArgs = args.first
             bodyList = args.rest
             new LispUserDefinedFunction(unevaluatedArgs, bodyList, env)
+    
+    ##
+    # set-bytecode!
+    ##
+    "SetBytecode":
+        symbol: "set-bytecode!"
+        action: (args, env) ->
+            func = LispEvaluator.eval args.first, env
+            bytecode = LispEvaluator.eval args.second(), env
+            console.log func, args.first
+            console.log bytecode, args.second()
+            func.bytecode = bytecode
+    
+    ##
+    # set-literals!
+    ##
+    "SetLiterals":
+        symbol: "set-literals!"
+        action: (args, env) ->
+            func = LispEvaluator.eval args.first, env
+            literals = LispEvaluator.eval args.second(), env
+            func.literals = literals
+    
+    ##
+    # get-body
+    ##
+    "GetBody":
+        symbol: "get-body"
+        action: (args, env) ->
+            func = LispEvaluator.eval args.first, env
+            func.bodyList
+    
+    ##
+    # get-argList
+    ##
+    "GetArgList":
+        symbol: "get-argList"
+        action: (args, env) ->
+            func = LispEvaluator.eval args.first, env
+            func.args
     
     ##
     # begin
@@ -250,6 +290,36 @@ root.builtIns =
                     a is b
 
             return (if comp A, B then new LispTrue() else new LispFalse())
+    
+    ##
+    # cons?
+    ##
+    "IsCons":
+        symbol: "cons?"
+        action: (args, env) ->
+            testObj = LispEvaluator.eval args.first, env
+            
+            if testObj.isLispList then new LispTrue() else new LispFalse()
+    
+    ##
+    # symbol?
+    ##
+    "IsSymbol":
+        symbol: "symbol?"
+        action: (args, env) ->
+            testObj = LispEvaluator.eval args.first, env
+            
+            if testObj.isLispSymbol then new LispTrue() else new LispFalse()
+    
+    ##
+    # number?
+    ##
+    "IsNumber":
+        symbol: "number?"
+        action: (args, env) ->
+            testObj = LispEvaluator.eval args.first, env
+            
+            if testObj.isLispInteger then new LispTrue() else new LispFalse()
     
     ##
     # and
@@ -326,6 +396,43 @@ root.builtIns =
             list.rest
     
     ##
+    # second
+    ##
+    "Second":
+        symbol: "second"
+        action: (args, env) ->
+            list = LispEvaluator.eval(args.first, env)
+            if list?.rest.isLispList then list.rest.first else new LispNil()
+    
+    ##
+    # third
+    ##
+    "Third":
+        symbol: "third"
+        action: (args, env) ->
+            list = LispEvaluator.eval(args.first, env)
+            if list?.rest.isLispList
+                if list.rest.rest.isLispList then list.rest.rest.first else new LispNil()
+            else
+                new LispNil()
+    
+    ##
+    # reverse
+    ##
+    "Reverse":
+        symbol: "reverse"
+        action: (args, env) ->
+            list = LispEvaluator.eval(args.first, env)
+            
+            doReverse = (list, append) ->
+                if list.isLispNil
+                    append
+                else
+                    doReverse list.rest, new LispList(list.first, append)
+                    
+            doReverse list, new LispNil()
+    
+    ##
     # quote
     # Evaluiert die Parameter nicht, sondern gibt sie einfach zurück
     ##
@@ -353,7 +460,10 @@ root.builtIns =
         action: (args, env) ->
             msg = LispEvaluator.eval(args.first, env)
             output = if isNode then console.log else root.LispReader.print
-            output "#{msg.characters}"
+            if msg.isLispString
+                output "#{msg.characters}"
+            else
+                output "#{msg.toString()}"
             msg
 
 # erzeuge die Klassen

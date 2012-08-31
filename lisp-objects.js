@@ -1,5 +1,5 @@
 (function() {
-  var LispAtom, LispByteCodeAssembler, LispFalse, LispInteger, LispList, LispNil, LispObject, LispString, LispSymbol, LispTrue, LispUserDefinedFunction, root,
+  var LispAtom, LispBytecodeAssembler, LispFalse, LispInteger, LispList, LispNil, LispObject, LispString, LispSymbol, LispTrue, LispUserDefinedFunction, root,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -254,7 +254,7 @@
       return "((User Defined Function))";
     };
 
-    LispUserDefinedFunction.prototype.byteCode = null;
+    LispUserDefinedFunction.prototype.bytecode = null;
 
     LispUserDefinedFunction.prototype.literals = null;
 
@@ -264,16 +264,16 @@
 
   root.LispUserDefinedFunction = LispUserDefinedFunction;
 
-  LispByteCodeAssembler = (function() {
+  LispBytecodeAssembler = (function() {
 
-    function LispByteCodeAssembler() {}
+    function LispBytecodeAssembler() {}
 
-    LispByteCodeAssembler.prototype.assemble = function() {};
+    LispBytecodeAssembler.prototype.assemble = function() {};
 
-    return LispByteCodeAssembler;
+    return LispBytecodeAssembler;
 
   })();
 
-  root.LispByteCodeAssembler = LispByteCodeAssembler;
+  root.LispBytecodeAssembler = LispBytecodeAssembler;
 
 }).call(this);

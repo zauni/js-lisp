@@ -7,7 +7,7 @@ frames haben pc, stack, args, currentFunction, etc.
 
 tree coded byte code interpreter
 
-ROOTS = globale Objekte und aktive Frames (ByteCode)
+ROOTS = globale Objekte und aktive Frames (Bytecode)
 
 
 

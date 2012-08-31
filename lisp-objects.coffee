@@ -138,12 +138,12 @@ class LispUserDefinedFunction extends LispAtom
     toString: ->
         "((User Defined Function))"
         
-    byteCode: null
+    bytecode: null
     literals: null
         
 root.LispUserDefinedFunction = LispUserDefinedFunction
 
-class LispByteCodeAssembler
+class LispBytecodeAssembler
     assemble: ->
     
-root.LispByteCodeAssembler = LispByteCodeAssembler
+root.LispBytecodeAssembler = LispBytecodeAssembler

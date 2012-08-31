@@ -1,0 +1,503 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>README</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+body{
+    margin: 0 auto;
+    font-family: Georgia, Palatino, serif;
+    color: #444444;
+    line-height: 1;
+    max-width: 960px;
+    padding: 5px;
+}
+h1, h2, h3, h4 {
+    color: #111111;
+    font-weight: 400;
+}
+h1, h2, h3, h4, h5, p {
+    margin-bottom: 16px;
+    padding: 0;
+}
+h1 {
+    font-size: 28px;
+}
+h2 {
+    font-size: 22px;
+    margin: 20px 0 6px;
+}
+h3 {
+    font-size: 21px;
+}
+h4 {
+    font-size: 18px;
+}
+h5 {
+    font-size: 16px;
+}
+a {
+    color: #0099ff;
+    margin: 0;
+    padding: 0;
+    vertical-align: baseline;
+}
+a:hover {
+    text-decoration: none;
+    color: #ff6600;
+}
+a:visited {
+    color: purple;
+}
+ul, ol {
+    padding: 0;
+    margin: 0;
+}
+li {
+    line-height: 24px;
+    margin-left: 44px;
+}
+li ul, li ul {
+    margin-left: 24px;
+}
+p, ul, ol {
+    font-size: 14px;
+    line-height: 20px;
+    max-width: 540px;
+}
+pre {
+    padding: 0px 24px;
+    max-width: 800px;
+    white-space: pre-wrap;
+}
+code {
+    font-family: Consolas, Monaco, Andale Mono, monospace;
+    line-height: 1.5;
+    font-size: 13px;
+}
+aside {
+    display: block;
+    float: right;
+    width: 390px;
+}
+blockquote {
+    border-left:.5em solid #eee;
+    padding: 0 2em;
+    margin-left:0;
+    max-width: 476px;
+}
+blockquote  cite {
+    font-size:14px;
+    line-height:20px;
+    color:#bfbfbf;
+}
+blockquote cite:before {
+    content: '\2014 \00A0';
+}
+
+blockquote p {  
+    color: #666;
+    max-width: 460px;
+}
+hr {
+    width: 540px;
+    text-align: left;
+    margin: 0 auto 0 0;
+    color: #999;
+}
+
+button,
+input,
+select,
+textarea {
+  font-size: 100%;
+  margin: 0;
+  vertical-align: baseline;
+  *vertical-align: middle;
+}
+button, input {
+  line-height: normal;
+  *overflow: visible;
+}
+button::-moz-focus-inner, input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+button,
+input[type="button"],
+input[type="reset"],
+input[type="submit"] {
+  cursor: pointer;
+  -webkit-appearance: button;
+}
+input[type=checkbox], input[type=radio] {
+  cursor: pointer;
+}
+/* override default chrome & firefox settings */
+input:not([type="image"]), textarea {
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+}
+
+input[type="search"] {
+  -webkit-appearance: textfield;
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+}
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+label,
+input,
+select,
+textarea {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: normal;
+  line-height: normal;
+  margin-bottom: 18px;
+}
+input[type=checkbox], input[type=radio] {
+  cursor: pointer;
+  margin-bottom: 0;
+}
+input[type=text],
+input[type=password],
+textarea,
+select {
+  display: inline-block;
+  width: 210px;
+  padding: 4px;
+  font-size: 13px;
+  font-weight: normal;
+  line-height: 18px;
+  height: 18px;
+  color: #808080;
+  border: 1px solid #ccc;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+select, input[type=file] {
+  height: 27px;
+  line-height: 27px;
+}
+textarea {
+  height: auto;
+}
+
+/* grey out placeholders */
+:-moz-placeholder {
+  color: #bfbfbf;
+}
+::-webkit-input-placeholder {
+  color: #bfbfbf;
+}
+
+input[type=text],
+input[type=password],
+select,
+textarea {
+  -webkit-transition: border linear 0.2s, box-shadow linear 0.2s;
+  -moz-transition: border linear 0.2s, box-shadow linear 0.2s;
+  transition: border linear 0.2s, box-shadow linear 0.2s;
+  -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+input[type=text]:focus, input[type=password]:focus, textarea:focus {
+  outline: none;
+  border-color: rgba(82, 168, 236, 0.8);
+  -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(82, 168, 236, 0.6);
+  -moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(82, 168, 236, 0.6);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(82, 168, 236, 0.6);
+}
+
+/* buttons */
+button {
+  display: inline-block;
+  padding: 4px 14px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 18px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+  background-color: #0064cd;
+  background-repeat: repeat-x;
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#049cdb), to(#0064cd));
+  background-image: -moz-linear-gradient(top, #049cdb, #0064cd);
+  background-image: -ms-linear-gradient(top, #049cdb, #0064cd);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #049cdb), color-stop(100%, #0064cd));
+  background-image: -webkit-linear-gradient(top, #049cdb, #0064cd);
+  background-image: -o-linear-gradient(top, #049cdb, #0064cd);
+  background-image: linear-gradient(top, #049cdb, #0064cd);
+  color: #fff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  border: 1px solid #004b9a;
+  border-bottom-color: #003f81;
+  -webkit-transition: 0.1s linear all;
+  -moz-transition: 0.1s linear all;
+  transition: 0.1s linear all;
+  border-color: #0064cd #0064cd #003f81;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+}
+button:hover {
+  color: #fff;
+  background-position: 0 -15px;
+  text-decoration: none;
+}
+button:active {
+  -webkit-box-shadow: inset 0 3px 7px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: inset 0 3px 7px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 3px 7px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+button::-moz-focus-inner {
+  padding: 0;
+  border: 0;
+}
+
+/* CSS stylesheet is based on Kevin Burke's Markdown.css project (http://kevinburke.bitbucket.org/markdowncss) */
+</style>
+</head>
+<body>
+<h1>Eine LISP Implementation in JavaScript, bzw. CoffeeScript.</h1>
+
+<h1>Dokumentation der LISP Sprache</h1>
+
+<p><em>JS-LISP - Projekt für die Vorlesung "Programmiersprachen"</em><br />
+Dieses Lisp unterstützt die meisten Features eines "richtigen" Lisp. Darunter zählen auch Closures und anonyme Funktionen.</p>
+
+<p>Außerdem hat es einen komfortablen Editor, der die Klammern automatisch vervollständigt und Syntaxhighlighting bietet. Möchte man nicht im Browser arbeiten, kann man auch eine REPL in der Kommandozeile starten. Diese wird von Node bereitgestellt und hat Features, die in der offiziellen Dokumentation beschrieben werden: <a href="http://nodejs.org/api/repl.html#repl_repl_features">Node REPL Dokumentation</a>. Beispielsweise kann hier die aktuelle REPL Session in einer Datei gespeichert oder von einer Datei geladen werden.</p>
+
+<h3>Inhaltsverzeichnis</h3>
+
+<ol>
+<li>Installation</li>
+<li>Beispiele</li>
+<li>Datentypen</li>
+<li>Built-In Funktionen</li>
+<li>Bekannte Probleme</li>
+<li>Kompatibilität</li>
+<li>Todo / Pläne</li>
+</ol>
+
+<hr />
+
+<h1>Installation</h1>
+
+<h2>Nutzung im Browser</h2>
+
+<p>Um den Editor im Browser zu nutzen, muss nichts installiert werden. Dazu reicht, die index.html im root Verzeichnis aufzurufen.</p>
+
+<h2>Nutzung in der Node REPL</h2>
+
+<p>Dazu muss zuerst Node in einer 0.8.x Version installiert werden. Diese kann von der <a href="http://nodejs.org/" title="Node installieren">offiziellen Homepage</a> heruntergeladen und installiert werden.<br />
+Anschließend navigiert man in einer Kommandozeile zum Lisp Ordner und gibt folgendes Kommando ein: <strong><code>node main.js</code></strong>. Damit öffnet sich die REPL und man kann Lisp Code eintippen.</p>
+
+<h1>Beispiele</h1>
+
+<h2>Länge einer Liste</h2>
+
+<p>```
+(define (length list)
+    (let ((erg 0))
+        (if (cons? list)
+            (begin
+                (set! erg (+ erg 1))
+                (+ erg (length (rest list)))
+            )
+            ; else
+            erg
+        )
+    )
+)</p>
+
+<p>(length '( 1 2 3 )) ; -> 3
+```</p>
+
+<h1>Datentypen</h1>
+
+<ul>
+<li>Strings: <code>"Hallo Welt"</code></li>
+<li>Zahlen: <code>1</code> <code>289</code></li>
+<li><code>nil</code> (steht für keinen Wert), <code>true</code> (für "wahr") und <code>false</code> (für nicht "wahr")</li>
+<li>Symbole: <code>sym</code></li>
+<li>Listen: <code>(1 2)</code> <code>("hallo" (1 2))</code></li>
+<li>Funktionen</li>
+</ul>
+
+<p>Außerdem gibt es noch Kommentare, die mit einem <code>;</code> beginnen und die restliche Zeile auskommentieren.</p>
+
+<h1>Built-In Funktionen</h1>
+
+<h2>Mathematische Funktionen</h2>
+
+<p>Es können beliebig viele Argumente an die Funktionen übergeben werden (allerdings ist die Operatorreihenfolge noch falsch bei - und /).</p>
+
+<p><strong>+</strong> num1 num*<br />
+<code>(+ 5 10 3) ; -&gt; 18</code><br />
+<strong>-</strong> num1 num*<br />
+<code>(- 20 2) ; -&gt; 18</code><br />
+<strong>*</strong> num1 num*<br />
+<code>(* 20 2) ; -&gt; 40</code><br />
+<strong>/</strong> num1 num*<br />
+<code>(/ 18 6) ; -&gt; 3</code>  </p>
+
+<h2>Variablen Funktionen</h2>
+
+<p><strong>define</strong><br />
+Erzeugt eine Variable im Environment<br />
+<code>(define a "hello") ; -&gt; a == "hello"</code>  </p>
+
+<p><strong>set!</strong><br />
+Ändert eine Variable im Environment<br />
+<code>(set! a "servus") ; -&gt; a == "servus"</code>  </p>
+
+<p><strong>let</strong><br />
+Erzeugt ein temporäres Environment und speichert dort Variablen. Anschließend werden alle Funktionsbodies in diesem Environment ausgewertet.<br />
+<code>(let ((a 2)) (+ a 5)) ; -&gt; 7</code>  </p>
+
+<h2>Funktionen für Funktionen</h2>
+
+<p><strong>lambda</strong><br />
+Erzeugt eine anonyme User-Defined-Function.<br />
+<code>( (lambda (x) (* x x)) 5 ) ; -&gt; 25</code></p>
+
+<p><strong>set-bytecode!</strong><br />
+Setzt den Bytecode für die Funktion.<br />
+<code>(set-bytecode! func "bytecode")</code></p>
+
+<p><strong>set-literals!</strong><br />
+Setzt die Literale für die Funktion.<br />
+<code>(set-literals! func "literale")</code></p>
+
+<p><strong>get-body</strong><br />
+Gibt die Liste der Bodies einer Funktion zurück.<br />
+<code>(get-body func)</code></p>
+
+<p><strong>get-argList</strong><br />
+Gibt die Liste der Argumente einer Funktion zurück.<br />
+<code>(get-argList func)</code></p>
+
+<p><strong>begin</strong><br />
+Evaluiert alle Ausdrücke, gibt aber nur den letzten zurück<br />
+<code>(begin
+    (+ 1 1) (* 2 2)) ; -&gt; 4</code></p>
+
+<h2>Bool'sche Funktionen</h2>
+
+<p><strong>if</strong><br />
+Normale if Abfrage.<br />
+<code>(if true "okay!" "nicht ganz...") ; -&gt; "okay"</code></p>
+
+<p><strong>eq?</strong><br />
+Abfrage auf Gleichheit. Versucht intelligent Datentypen-Unterschiede auszugleichen.<br />
+<code>(if (eq? "hello" "world") "okay!" "nicht ganz...") ; -&gt; "nicht ganz..."</code></p>
+
+<p><strong>cons?</strong><br />
+Abfrage ob das Objekt eine Liste ist.<br />
+<code>(cons? '(1 2 3)) ; -&gt; true</code></p>
+
+<p><strong>symbol?</strong><br />
+Abfrage ob das Objekt ein Symbol ist.<br />
+<code>(symbol? 'a) ; -&gt; true</code></p>
+
+<p><strong>number?</strong><br />
+Abfrage ob das Objekt eine Zahl ist.<br />
+<code>(number? 25) ; -&gt; true</code></p>
+
+<p><strong>and</strong><br />
+UND Verknüpfung<br />
+<code>(if (and true false) "okay!" "nicht ganz...") ; -&gt; "nicht ganz..."</code></p>
+
+<p><strong>or</strong><br />
+ODER Verknüpfung<br />
+<code>(if (or true false) "okay!" "nicht ganz...") ; -&gt; "okay"</code></p>
+
+<p><strong>not</strong><br />
+Umkehrung<br />
+<code>(if (not true) "okay!" "nicht ganz...") ; -&gt; "nicht ganz..."</code></p>
+
+<h2>Listen</h2>
+
+<p><strong>cons</strong><br />
+Damit kann eine Liste erstellt werden.<br />
+<code>(cons 1 2) ; -&gt; (1 2)</code></p>
+
+<p><strong>first</strong><br />
+Gibt das erste Element einer Liste zurück.<br />
+<code>(first (cons 1 2)) ; -&gt; 1</code></p>
+
+<p><strong>rest</strong><br />
+Gibt das zweite Element einer Liste zurück.<br />
+<code>(rest (cons 1 (cons 2 nil))) ; -&gt; (2 nil)</code></p>
+
+<p><strong>second</strong><br />
+Gibt das zweite Element in einer Listenreihe zurück.<br />
+<code>(second (cons 1 (cons 2 nil))) ; -&gt; 2</code></p>
+
+<p><strong>third</strong><br />
+Gibt das dritte Element in einer Listenreihe zurück.<br />
+<code>(third (cons 1 (cons 2 (cons 3 nil)))) ; -&gt; 3</code></p>
+
+<p><strong>reverse</strong><br />
+Kehrt die Reihenfolge der Listenelemente um.<br />
+<code>(reverse '(1 2 3 4)) ; -&gt; (4 3 2 1)</code></p>
+
+<h2>Sonstige</h2>
+
+<p><strong>quote</strong><br />
+Gibt das folgende Symbol unevaluiert zurück.<br />
+<code>(quote someVar) ; -&gt; someVar</code><br />
+Das hat den selben Effekt, wie wenn man nur ein einfaches Anführungszeichen vor das Symbol setzt:<br />
+<code>'someVar ; -&gt; someVar</code></p>
+
+<p><strong>error</strong><br />
+Erzeugt einen Fehler, damit dieser ausgegeben werden kann.<br />
+<code>(error "Falscher Variablenname!") ; -&gt; "Falscher Variablenname"</code></p>
+
+<p><strong>print</strong><br />
+Gibt einen String aus.<br />
+<code>(print "Hello World") ; -&gt; "Hello World"</code></p>
+
+<h1>Bekannte Probleme</h1>
+
+<h1>Kompatibilität</h1>
+
+<p>Getestet wurde JS-LISP in folgender Umgebung:</p>
+
+<p>Windows 7, Firefox 14, Node v0.8.7</p>
+
+<p>Allerdings sollte es in den folgenden Umgebungen ausführbar sein:</p>
+
+<ul>
+<li>Linux</li>
+<li>MacOSX</li>
+<li>Internet Explorer v8+</li>
+<li>Firefox, Chrome, Safari</li>
+<li>Node ab Version 0.8.x</li>
+</ul>
+
+<h1>Todo / Pläne für die Zukunft:</h1>
+
+<ul>
+<li>Schöneres Design für den Editor</li>
+<li>Bessere Syntax-Error Erkennung</li>
+<li>LispWorker für den ACE Editor bauen (damit Syntax-Errors auch im Editor erscheinen)</li>
+<li>Unit Tests</li>
+<li>noch mehr Dokumentation</li>
+<li>Canvas API in der LISP Sprache zur Verfügung stellen</li>
+<li>Autovervollständigen im ACE Editor</li>
+<li>Built-In Funktionen könnten auch durch externe Dateien nachgeladen werden</li>
+<li>Funktionen sollten die Länge ihrer Argumentliste und die Argumente validieren</li>
+</ul>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

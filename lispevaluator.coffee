@@ -3,11 +3,11 @@ self = this
 isNode = false
 
 if exports?
-    {LispObject, LispAtom, LispInteger, LispString, LispSymbol, LispList, LispNil, LispTrue, LispFalse, LispUserDefinedFunction, LispByteCodeAssembler} = require "./lisp-objects.js"
+    {LispObject, LispAtom, LispInteger, LispString, LispSymbol, LispList, LispNil, LispTrue, LispFalse, LispUserDefinedFunction, LispBytecodeAssembler} = require "./lisp-objects.js"
     {LispEnvironment, @LispBuiltInFunction, @LispBuiltInPlusFunction, @LispBuiltInMinusFunction, @LispBuiltInMultiplyFunction, @LispBuiltInDivideFunction, @LispBuiltInDefineFunction, @LispBuiltInSetFunction, @LispBuiltInLetFunction, @LispBuiltInLambdaFunction, @LispBuiltInBeginFunction, @LispBuiltInIfFunction, @LispBuiltInEqFunction, @LispBuiltInAndFunction, @LispBuiltInOrFunction, @LispBuiltInNotFunction, @LispBuiltInConsFunction, @LispBuiltInFirstFunction, @LispBuiltInRestFunction, @LispBuiltInQuoteFunction, @LispBuiltInErrorFunction} = require "./built-in-functions.js"
     isNode = true
 else
-    {LispObject, LispAtom, LispInteger, LispString, LispSymbol, LispList, LispNil, LispTrue, LispFalse, LispUserDefinedFunction, LispByteCodeAssembler} = root
+    {LispObject, LispAtom, LispInteger, LispString, LispSymbol, LispList, LispNil, LispTrue, LispFalse, LispUserDefinedFunction, LispBytecodeAssembler} = root
     {LispEnvironment, @LispBuiltInFunction, @LispBuiltInPlusFunction, @LispBuiltInMinusFunction, @LispBuiltInMultiplyFunction, @LispBuiltInDivideFunction, @LispBuiltInDefineFunction, @LispBuiltInSetFunction, @LispBuiltInLetFunction, @LispBuiltInLambdaFunction, @LispBuiltInBeginFunction, @LispBuiltInIfFunction, @LispBuiltInEqFunction, @LispBuiltInAndFunction, @LispBuiltInOrFunction, @LispBuiltInNotFunction, @LispBuiltInConsFunction, @LispBuiltInFirstFunction, @LispBuiltInRestFunction, @LispBuiltInQuoteFunction, @LispBuiltInErrorFunction} = root
 
 ##
@@ -33,6 +33,8 @@ class LispEvaluator
         unevaluatedFunc = lispObj.first
         evaluatedFunc = @eval(unevaluatedFunc, env)
         unevaluatedArgs = lispObj.rest
+        
+        throw "Funktion '#{unevaluatedFunc.characters}' ist nicht definiert!" if evaluatedFunc is null
         
         if evaluatedFunc.isLispBuiltInFunction
             return evaluatedFunc.action(unevaluatedArgs, env)
@@ -83,15 +85,25 @@ class LispEvaluator
             "set!": "Set"
             "let": "Let"
             "lambda": "Lambda"
+            "set-bytecode!": "SetBytecode"
+            "set-literals!": "SetLiterals"
+            "get-body": "GetBody"
+            "get-argList": "GetArgList"
             "begin": "Begin"
             "if": "If"
             "eq?": "Eq"
+            "cons?": "IsCons"
+            "symbol?": "IsSymbol"
+            "number?": "IsNumber"
             "and": "And"
             "or": "Or"
             "not": "Not"
             "cons": "Cons"
             "first": "First"
             "rest": "Rest"
+            "second": "Second"
+            "third": "Third"
+            "reverse": "Reverse"
             "quote": "Quote"
             "error": "Error"
             "print": "Print"

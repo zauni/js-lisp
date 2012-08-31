@@ -9,11 +9,12 @@ Außerdem hat es einen komfortablen Editor, der die Klammern automatisch vervoll
 
 ### Inhaltsverzeichnis
 1. Installation
-2. Datentypen
-3. Built-In Funktionen
-4. Bekannte Probleme
-5. Kompatibilität
-6. Todo / Pläne
+2. Beispiele
+3. Datentypen
+4. Built-In Funktionen
+5. Bekannte Probleme
+6. Kompatibilität
+7. Todo / Pläne
 
 ---
 
@@ -25,6 +26,29 @@ Um den Editor im Browser zu nutzen, muss nichts installiert werden. Dazu reicht,
 ## Nutzung in der Node REPL
 Dazu muss zuerst Node in einer 0.8.x Version installiert werden. Diese kann von der [offiziellen Homepage](http://nodejs.org/ "Node installieren") heruntergeladen und installiert werden.  
 Anschließend navigiert man in einer Kommandozeile zum Lisp Ordner und gibt folgendes Kommando ein: **`node main.js`**. Damit öffnet sich die REPL und man kann Lisp Code eintippen.
+
+
+# Beispiele
+
+## Länge einer Liste
+
+```
+(define (length list)
+    (let ((erg 0))
+        (if (cons? list)
+            (begin
+                (set! erg (+ erg 1))
+                (+ erg (length (rest list)))
+            )
+            ; else
+            erg
+        )
+    )
+)
+
+(length '( 1 2 3 )) ; -> 3
+```
+
 
 # Datentypen
 
@@ -66,8 +90,24 @@ Erzeugt ein temporäres Environment und speichert dort Variablen. Anschließend 
 
 ## Funktionen für Funktionen
 __lambda__  
-Erzeugt eine anonyme User-Defined-Function  
+Erzeugt eine anonyme User-Defined-Function.  
 `( (lambda (x) (* x x)) 5 ) ; -> 25`
+
+__set-bytecode!__  
+Setzt den Bytecode für die Funktion.  
+`(set-bytecode! func "bytecode")`
+
+__set-literals!__  
+Setzt die Literale für die Funktion.  
+`(set-literals! func "literale")`
+
+__get-body__  
+Gibt die Liste der Bodies einer Funktion zurück.  
+`(get-body func)`
+
+__get-argList__  
+Gibt die Liste der Argumente einer Funktion zurück.  
+`(get-argList func)`
 
 __begin__  
 Evaluiert alle Ausdrücke, gibt aber nur den letzten zurück  
@@ -82,6 +122,18 @@ Normale if Abfrage.
 __eq?__  
 Abfrage auf Gleichheit. Versucht intelligent Datentypen-Unterschiede auszugleichen.  
 `(if (eq? "hello" "world") "okay!" "nicht ganz...") ; -> "nicht ganz..."`
+
+__cons?__  
+Abfrage ob das Objekt eine Liste ist.  
+`(cons? '(1 2 3)) ; -> true`
+
+__symbol?__  
+Abfrage ob das Objekt ein Symbol ist.  
+`(symbol? 'a) ; -> true`
+
+__number?__  
+Abfrage ob das Objekt eine Zahl ist.  
+`(number? 25) ; -> true`
 
 __and__  
 UND Verknüpfung  
@@ -108,6 +160,18 @@ Gibt das erste Element einer Liste zurück.
 __rest__  
 Gibt das zweite Element einer Liste zurück.  
 `(rest (cons 1 (cons 2 nil))) ; -> (2 nil)`
+
+__second__  
+Gibt das zweite Element in einer Listenreihe zurück.  
+`(second (cons 1 (cons 2 nil))) ; -> 2`
+
+__third__  
+Gibt das dritte Element in einer Listenreihe zurück.  
+`(third (cons 1 (cons 2 (cons 3 nil)))) ; -> 3`
+
+__reverse__  
+Kehrt die Reihenfolge der Listenelemente um.  
+`(reverse '(1 2 3 4)) ; -> (4 3 2 1)`
 
 
 ## Sonstige
@@ -153,3 +217,4 @@ Allerdings sollte es in den folgenden Umgebungen ausführbar sein:
 - Canvas API in der LISP Sprache zur Verfügung stellen
 - Autovervollständigen im ACE Editor
 - Built-In Funktionen könnten auch durch externe Dateien nachgeladen werden
+- Funktionen sollten die Länge ihrer Argumentliste und die Argumente validieren

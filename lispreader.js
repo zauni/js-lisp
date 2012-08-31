@@ -1,5 +1,5 @@
 (function() {
-  var LispAtom, LispByteCodeAssembler, LispEnvironment, LispEvaluator, LispFalse, LispInteger, LispList, LispNil, LispObject, LispReader, LispString, LispSymbol, LispTrue, LispUserDefinedFunction, StringParser, isNode, repl, root, self, _ref,
+  var LispAtom, LispBytecodeAssembler, LispEnvironment, LispEvaluator, LispFalse, LispInteger, LispList, LispNil, LispObject, LispReader, LispString, LispSymbol, LispTrue, LispUserDefinedFunction, StringParser, isNode, repl, root, self, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   root = typeof exports !== "undefined" && exports !== null ? exports : this;
@@ -11,12 +11,12 @@
   if (typeof exports !== "undefined" && exports !== null) {
     repl = require("repl");
     StringParser = require("./libs/stringparser.js").StringParser;
-    _ref = require("./lisp-objects.js"), LispEnvironment = _ref.LispEnvironment, LispObject = _ref.LispObject, LispAtom = _ref.LispAtom, LispInteger = _ref.LispInteger, LispString = _ref.LispString, LispSymbol = _ref.LispSymbol, LispList = _ref.LispList, LispNil = _ref.LispNil, LispTrue = _ref.LispTrue, LispFalse = _ref.LispFalse, LispUserDefinedFunction = _ref.LispUserDefinedFunction, LispByteCodeAssembler = _ref.LispByteCodeAssembler;
+    _ref = require("./lisp-objects.js"), LispEnvironment = _ref.LispEnvironment, LispObject = _ref.LispObject, LispAtom = _ref.LispAtom, LispInteger = _ref.LispInteger, LispString = _ref.LispString, LispSymbol = _ref.LispSymbol, LispList = _ref.LispList, LispNil = _ref.LispNil, LispTrue = _ref.LispTrue, LispFalse = _ref.LispFalse, LispUserDefinedFunction = _ref.LispUserDefinedFunction, LispBytecodeAssembler = _ref.LispBytecodeAssembler;
     LispEvaluator = require("./lispevaluator.js").LispEvaluator;
     isNode = true;
   } else {
     StringParser = root.StringParser;
-    LispEnvironment = root.LispEnvironment, LispObject = root.LispObject, LispAtom = root.LispAtom, LispInteger = root.LispInteger, LispString = root.LispString, LispSymbol = root.LispSymbol, LispList = root.LispList, LispNil = root.LispNil, LispTrue = root.LispTrue, LispFalse = root.LispFalse, LispUserDefinedFunction = root.LispUserDefinedFunction, LispByteCodeAssembler = root.LispByteCodeAssembler;
+    LispEnvironment = root.LispEnvironment, LispObject = root.LispObject, LispAtom = root.LispAtom, LispInteger = root.LispInteger, LispString = root.LispString, LispSymbol = root.LispSymbol, LispList = root.LispList, LispNil = root.LispNil, LispTrue = root.LispTrue, LispFalse = root.LispFalse, LispUserDefinedFunction = root.LispUserDefinedFunction, LispBytecodeAssembler = root.LispBytecodeAssembler;
     LispEvaluator = root.LispEvaluator;
   }
 
