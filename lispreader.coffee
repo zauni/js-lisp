@@ -5,12 +5,12 @@ isNode = false
 if exports?
     repl = require "repl"
     {StringParser} = require "./libs/stringparser.js"
-    {LispEnvironment, LispObject, LispAtom, LispInteger, LispString, LispSymbol, LispList, LispNil, LispTrue, LispFalse, LispUserDefinedFunction, LispBytecodeAssembler} = require "./lisp-objects.js"
+    {LispObject, LispAtom, LispInteger, LispString, LispSymbol, LispList, LispNil, LispTrue, LispFalse, LispUserDefinedFunction, LispBytecodeAssembler} = require "./lisp-objects.js"
     {LispEvaluator} = require "./lispevaluator.js"
     isNode = true
 else
     {StringParser} = root
-    {LispEnvironment, LispObject, LispAtom, LispInteger, LispString, LispSymbol, LispList, LispNil, LispTrue, LispFalse, LispUserDefinedFunction, LispBytecodeAssembler} = root
+    {LispObject, LispAtom, LispInteger, LispString, LispSymbol, LispList, LispNil, LispTrue, LispFalse, LispUserDefinedFunction, LispBytecodeAssembler} = root
     {LispEvaluator} = root
 
 class LispReader

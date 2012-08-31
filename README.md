@@ -195,6 +195,8 @@ Gibt einen String aus.
 
 Der Bytecode Compiler aus [der Vorlesung](https://redmine.mi.hdm-stuttgart.de/attachments/download/3942/2012-05-10_bytecode-compiler.lsp.rkt) kann leider noch nicht genutzt werden. Allerdings wird der Code ohne Fehler zu werfen ausgeführt (nach kleineren Modifikationen). Der Bytecode wird trotzdem nicht korrekt ausgegeben...
 
+Bei - und / werden die Argumente falsch berechnet, sobald mehr als zwei Argumente übergeben werden.
+
 # Kompatibilität
 Getestet wurde JS-LISP in folgender Umgebung:
 

@@ -65,7 +65,7 @@ class LispBuiltInFunction extends LispAtom
         
 root.LispBuiltInFunction = LispBuiltInFunction
 
-root.builtIns =
+builtIns =
     ##
     # +
     ##
